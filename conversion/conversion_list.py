@@ -101,14 +101,14 @@ def print_if_sentence_ID2char(filename, li):
         for i in range(len(li)-1):
             if len(li[i]) == 2:
                 f.write("\tif id == {}:\n".format(li[i][0]))
-                f.write("\t\treturn {}.to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1]))
+                f.write("\t\treturn ({}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1]))
             if len(li[i]) == 3:
                 f.write("\tif id >= {} and id < {}:\n".format(li[i][0], li[i+1][0]))
                 f.write("\t\treturn ({} + id - {}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1], li[i][0]))
         i = len(li)-1
         if len(li[i]) == 2:
             f.write("\tif id == {}:\n".format(li[i][0]))
-            f.write("\t\treturn {}.to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1]))
+            f.write("\t\treturn ({}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1]))
         if len(li[i]) == 3:
             f.write("\tif id >= {}:\n".format(li[i][0]))
             f.write("\t\treturn ({} + id - {}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1], li[i][0]))
