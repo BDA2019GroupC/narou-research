@@ -8,4 +8,4 @@ class DataLoader:
     for path in get_all_path(self.path, extention, exception):
       with open(path) as f:
         for line in f:
-          yield line
+          yield line.rstrip()
