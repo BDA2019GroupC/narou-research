@@ -1,52 +1,74 @@
 def create_char_range_list():
     char_range_list = []
     char_range_list.append([32, 127])
-    char_range_list.append([51887, 51904]) #使うかもしれない半角記号1 128〜143
-    char_range_list.append([52095, 52160]) #使うかもしれない半角記号2 144〜207
-    char_range_list.append([52351, 52416]) #使うかもしれない半角記号3 208〜271
-    char_range_list.append([14909567, 14909600]) #使うかもしれない全角記号 272〜303
-    char_range_list.append([14909823, 14909888]) #ひらがな、カタカナ1 304〜367
-    char_range_list.append([14910079, 14910144]) #ひらがな、カタカナ2 368〜431
-    char_range_list.append([14910335, 14910400]) #ひらがな、カタカナ3 432〜495
-    for i in range(8):  char_range_list.append([14989439+i*256, 14989504+i*256]) #使うかもしれない漢字1 496〜1007
-    for i in range(64): char_range_list.append([15040639+i*256, 15040704+i*256]) #使うかもしれない漢字2 1008〜5103
-    for i in range(64): char_range_list.append([15106175+i*256, 15106240+i*256]) #使うかもしれない漢字3 5104〜9199
-    for i in range(64): char_range_list.append([15171711+i*256, 15187904+i*256]) #使うかもしれない漢字4 9200〜13295
-    for i in range(64): char_range_list.append([15237247+i*256, 15237312+i*256]) #使うかもしれない漢字5 13296〜17391
-    for i in range(64): char_range_list.append([15302783+i*256, 15302848+i*256]) #使うかもしれない漢字6 17392〜21295
-  
-    char_range_list.append([52913, 52928]) # ギリシャ α~
-    char_range_list.append([53120, 53414]) # ギリシャ π~Х
-    char_range_list.append([52892]) # ギリシャ Μ
-    char_range_list.append([49831]) # §
-    char_range_list.append([50071]) # ×
-    char_range_list.append([49826,49855+1])
-    char_range_list.append([50055,50108+1])
-    char_range_list.append([50305,50335+1])
-    char_range_list.append([50571,50605+1])
-    char_range_list.append([50571,50605+1])
-  
-    char_range_list.append([15711361, 15711421]) # 全角記号・数字・アルファベット
-    char_range_list.append([15711617, 15711642]) # 全角アルファベット小文字
-    char_range_list.append([14844053]) # ―
-    char_range_list.append([14844070]) # …
-    char_range_list.append([14844091]) # ※
-    char_range_list.append([15711644]) # ｜
-    char_range_list.append([14844060]) # “
-    char_range_list.append([14844061]) # ”
-    char_range_list.append([14844083]) # ″
-    char_range_list.append([14845586]) # →
-    char_range_list.append([15711646]) # ～
+    char_range_list.append([14909568, 14909631]) # 3byte記号
+
+    for i in range(3):  char_range_list.append([14909824+i*256, 14909887+i*256]) # ひらがな、カタカナ
+
+    for i in range(8):  char_range_list.append([14989440+i*256, 14989503+i*256])  # 使うかもしれない漢字1
+    for i in range(64): char_range_list.append([15040640+i*256, 15040703+i*256]) # 使うかもしれない漢字2
+    for i in range(64): char_range_list.append([15106176+i*256, 15106239+i*256]) # 使うかもしれない漢字3
+    for i in range(64): char_range_list.append([15171712+i*256, 15171775+i*256]) # 使うかもしれない漢字4
+    for i in range(64): char_range_list.append([15237248+i*256, 15237311+i*256]) # 使うかもしれない漢字5
+    for i in range(64): char_range_list.append([15302784+i*256, 15302847+i*256]) # 使うかもしれない漢字6
+
+    for i in range(2):  char_range_list.append([15711360+i*256, 15711423+i*256]) # 全角記号・数字・アルファベット
+    char_range_list.append([15711872, 15711903]) # 半角カタカナ
+    for i in range(2):  char_range_list.append([14844032+i*256, 14844095+i*256]) # 一般句読点
+
+
     char_range_list.append([14849152]) # ─
-  
-    char_range_list.append([14844048,14844071]) # 記号
-    char_range_list.append([14845344,14845578]) # ローマ数字とか
-    char_range_list.append([14850474]) # ♪
-    char_range_list.append([14850182]) # ☆
-    char_range_list.append([14844092]) # ‼
-    char_range_list.append([14844297]) # ⁉
-    char_range_list.append([14844296]) # ⁈
-  
+    char_range_list.append([14850464, 14850479]) # 音符とか記号
+    char_range_list.append([14850176, 14850191]) # ☆とか記号
+
+    char_range_list.append([49824, 49855]) # §とか´などの2byte記号
+    for i in range(6):  char_range_list.append([50048+i*256, 50095+i*256]) # ラテン語修飾1
+    for i in range(5):  char_range_list.append([51584+i*256, 51631+i*256]) # ラテン語修飾2 と IPA拡張と合成修飾文字
+    for i in range(2):  char_range_list.append([52864+i*256, 52927+i*256]) # ギリシア文字及びコプト文字
+    for i in range(4):  char_range_list.append([53376+i*256, 53439+i*256]) # キリル文字
+    char_range_list.append([54400, 54463]) # キリル文字補助
+    char_range_list.append([54656, 54719]) # アルメニア文字
+    for i in range(2):  char_range_list.append([54912+i*256, 54975+i*256]) # ヘブライ文字
+    for i in range(4):  char_range_list.append([55424+i*256, 55487+i*256]) # アラビア文字
+    char_range_list.append([15710608, 15710639]) # 小字形
+
+    char_range_list.append([14845312, 14845375]) # 数字に準ずるもの
+    for i in range(10):  char_range_list.append([14845568+i*256, 14845631+i*256]) # 矢印、数学、技術記号
+    for i in range(3):  char_range_list.append([14848384+i*256, 14848447+i*256]) # 囲み英数字
+    for i in range(4):  char_range_list.append([14912640+i*256, 14912703+i*256]) # 単位
+    char_range_list.append([14845056, 14845119]) # 単位2
+
+    char_range_list.append([14849696, 14849727]) # 幾何学記号1
+    char_range_list.append([14849920, 14849983]) # 幾何学記号2
+
+    char_range_list.append([14851229]) # ✝
+    char_range_list.append([14851228]) # ✜
+    char_range_list.append([14851492]) # ❤
+    char_range_list.append([15710350]) # 変なスペース？      ←無視して良いかも
+    char_range_list.append([15710351]) # 変なスペース2？    ←無視して良いかも
+    char_range_list.append([14849153]) # ━
+    char_range_list.append([15712163]) # ￣
+    char_range_list.append([14850963]) # ⛓
+    char_range_list.append([14849160]) # ┈
+    char_range_list.append([14851263]) # ✿
+    char_range_list.append([14850432]) # ♀
+    char_range_list.append([14851745]) # ➡
+    char_range_list.append([14849157]) # ┅
+    char_range_list.append([14850434]) # ♂
+    char_range_list.append([14850730]) # ⚪
+    char_range_list.append([14849155]) # ┃
+    char_range_list.append([15712165]) # ￥
+    char_range_list.append([14849164]) # ┌
+    char_range_list.append([14849168]) # ┐
+    char_range_list.append([14727569]) # ๑
+    char_range_list.append([14849672]) # █
+    char_range_list.append([14851221]) # ✕
+    char_range_list.append([50103]) # ÷
+    char_range_list.append([14849154]) # │
+    char_range_list.append([14849167]) # ┏
+    char_range_list.append([14851239]) # ✧
+    char_range_list.append([14850195]) # ☓
+
     char_range_and_num_list = []
     num = 0
     for l in char_range_list:
@@ -55,14 +77,39 @@ def create_char_range_list():
             num += 1
         else:
             char_range_and_num_list.append([num, l[0], l[1]])
-            num += l[1] - l[0]
+            num += (l[1] - l[0] + 1)
+            num
     return char_range_and_num_list
 
-def char2ID(c, li):
-    utf8 = int.from_bytes(c.encode("utf-8"), 'big') #文字をutf8に変換
-    for l in li:
-        if len(l) == 2 and utf8 == l[1]: 
-            return l[0]
-        if len(l) == 3 and utf8 >= l[1] and utf8 < l[2]:
-            return l[0] + utf8 - l[1]
-    return -1
+def print_if_sentence_char2ID(filename, li):
+    with open(filename,"a") as f:
+        f.write("def char2ID(c):\n")
+        f.write("\tutf8 = int.from_bytes(c.encode(\"utf-8\"), 'big')\n")
+        for elm in li:
+            if len(elm) == 2:
+                f.write("\tif utf8 == {}:\n".format(elm[1]))
+                f.write("\t\treturn {} + 32\n".format(elm[0]))
+            if len(elm) == 3:
+                f.write("\tif utf8 >= {} and utf8 <= {}:\n".format(elm[1],elm[2]))
+                f.write("\t\treturn {} + utf8 - {} + 32\n".format(elm[0],elm[1]))
+        f.write("\treturn -1\n")
+
+def print_if_sentence_ID2char(filename, li):
+    with open(filename,"a") as f:
+        f.write("def ID2char(id):\n")
+        f.write("\tid = id - 32\n")
+        for i in range(len(li)-1):
+            if len(li[i]) == 2:
+                f.write("\tif id == {}:\n".format(li[i][0]))
+                f.write("\t\treturn {}.to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1]))
+            if len(li[i]) == 3:
+                f.write("\tif id >= {} and id < {}:\n".format(li[i][0], li[i+1][0]))
+                f.write("\t\treturn ({} + id - {}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1], li[i][0]))
+        i = len(li)-1
+        if len(li[i]) == 2:
+            f.write("\tif id == {}:\n".format(li[i][0]))
+            f.write("\t\treturn {}.to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1]))
+        if len(li[i]) == 3:
+            f.write("\tif id >= {}:\n".format(li[i][0]))
+            f.write("\t\treturn ({} + id - {}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1], li[i][0]))
+        f.write("\treturn -1\n")
