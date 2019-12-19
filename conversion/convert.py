@@ -1512,7 +1512,7 @@ def ID2char(id):
 	if id >= 21568 and id < 21632:
 		return (14844288 + id - 21568).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 21632:
-		return 14849152.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14849152).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id >= 21633 and id < 21649:
 		return (14850464 + id - 21633).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id >= 21649 and id < 21665:
@@ -1614,57 +1614,57 @@ def ID2char(id):
 	if id >= 24401 and id < 24465:
 		return (14849920 + id - 24401).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24465:
-		return 14851229.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14851229).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24466:
-		return 14851228.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14851228).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24467:
-		return 14851492.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14851492).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24468:
-		return 15710350.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (15710350).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24469:
-		return 15710351.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (15710351).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24470:
-		return 14849153.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14849153).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24471:
-		return 15712163.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (15712163).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24472:
-		return 14850963.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14850963).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24473:
-		return 14849160.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14849160).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24474:
-		return 14851263.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14851263).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24475:
-		return 14850432.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14850432).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24476:
-		return 14851745.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14851745).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24477:
-		return 14849157.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14849157).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24478:
-		return 14850434.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14850434).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24479:
-		return 14850730.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14850730).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24480:
-		return 14849155.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14849155).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24481:
-		return 15712165.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (15712165).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24482:
-		return 14849164.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14849164).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24483:
-		return 14849168.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14849168).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24484:
-		return 14727569.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14727569).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24485:
-		return 14849672.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14849672).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24486:
-		return 14851221.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14851221).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24487:
-		return 50103.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (50103).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24488:
-		return 14849154.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14849154).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24489:
-		return 14849167.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14849167).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24490:
-		return 14851239.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14851239).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24491:
-		return 14850195.to_bytes(16, 'big').decode("utf-8")[-1]
+		return (14850195).to_bytes(16, 'big').decode("utf-8")[-1]
 	return -1
