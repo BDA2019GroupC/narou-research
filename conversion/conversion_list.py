@@ -92,7 +92,7 @@ def print_if_sentence_char2ID(filename, li):
             if len(elm) == 3:
                 f.write("\tif utf8 >= {} and utf8 <= {}:\n".format(elm[1],elm[2]))
                 f.write("\t\treturn {} + utf8 - {} + 32\n".format(elm[0],elm[1]))
-        f.write("\treturn -1\n")
+        f.write("\treturn 2\n")
 
 def print_if_sentence_ID2char(filename, li):
     with open(filename,"a") as f:
@@ -112,4 +112,4 @@ def print_if_sentence_ID2char(filename, li):
         if len(li[i]) == 3:
             f.write("\tif id >= {}:\n".format(li[i][0]))
             f.write("\t\treturn ({} + id - {}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1], li[i][0]))
-        f.write("\treturn -1\n")
+        f.write("\treturn 2\n")
