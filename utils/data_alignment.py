@@ -2,7 +2,7 @@ from narouresearch.dataloader.dataloader import DataLoader
 import os
 
 def data_alignment_by_length(from_rootpath, to_rootpath):
-	os.mkdirs(rootpath, exist_ok=True)
+	os.mkdirs(to_rootpath, exist_ok=True)
 	dl = DataLoader(path,validation_split=0)
 	generator = dl.get_generator()
 	for i, sentence in enumerate(generator):
