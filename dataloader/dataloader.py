@@ -23,5 +23,5 @@ class DataLoader:
                     if mode == "validation" and rand >= self.validation_split:
                         continue
 
-                    yield line.rstrip()
+                    yield path, line.rstrip()
 
