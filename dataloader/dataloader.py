@@ -8,6 +8,7 @@ class DataLoader:
         self.extention = extention
         self.exception = exception
         self.seed = seed
+        self.strip_one = strip_one
 
     def get_generator(self, mode="training"):
         random.seed(self.seed)
@@ -15,7 +16,7 @@ class DataLoader:
             raise Exception("mode must be training or validation.")
         for path in get_all_path(self.path, self.extention, self.exception):
             with open(path) as f:
-                if strip_one: f.readline()
+                if self.strip_one: f.readline()
                 for line in f:
                     rand = random.random()
                     if mode == "training" and rand < self.validation_split:
