@@ -2,7 +2,7 @@ from narouresearch.utils.io_util import get_all_path
 import random
 
 class DataLoader:
-    def __init__(self, path, validation_split=0.2, seed=0, extention=[], exception=[]):
+    def __init__(self, path, validation_split=0.2, seed=0, extention=[], exception=[], strip_one=False):
         self.path = path
         self.validation_split = validation_split
         self.extention = extention
@@ -15,6 +15,7 @@ class DataLoader:
             raise Exception("mode must be training or validation.")
         for path in get_all_path(self.path, self.extention, self.exception):
             with open(path) as f:
+                if strip_one: f.readline()
                 for line in f:
                     rand = random.random()
                     if mode == "training" and rand < self.validation_split:
