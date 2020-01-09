@@ -98,7 +98,7 @@ def print_if_sentence_ID2char(filename, li):
     with open(filename,"a") as f:
         f.write("def ID2char(id):\n")
         f.write("\tif id >= {} and id < {}: return id\n".format(li[0][1],li[0][2]))
-        for i in range(1,len(li)-1): # 制御IDのリストは出力しない
+        for i in range(1,len(li)): # 制御IDのリストは出力しない
             if len(li[i]) == 2:
                 f.write("\tif id == {}: ".format(li[i][0]))
                 f.write("return ({}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1]))
