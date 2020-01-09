@@ -1,5 +1,6 @@
 def create_char_range_list():
     char_range_list = []
+    char_range_list.append([0, 5]) # 制御コード用
     char_range_list.append([32, 127])
     char_range_list.append([14909568, 14909631]) # 3byte記号
 
@@ -88,16 +89,15 @@ def print_if_sentence_char2ID(filename, li):
         for elm in li:
             if len(elm) == 2:
                 f.write("\tif utf8 == {}:\n".format(elm[1]))
-                f.write("\t\treturn {} + 32\n".format(elm[0]))
+                f.write("\t\treturn {}\n".format(elm[0]))
             if len(elm) == 3:
                 f.write("\tif utf8 >= {} and utf8 <= {}:\n".format(elm[1],elm[2]))
-                f.write("\t\treturn {} + utf8 - {} + 32\n".format(elm[0],elm[1]))
+                f.write("\t\treturn {} + utf8 - {}\n".format(elm[0],elm[1]))
         f.write("\treturn 2\n")
 
 def print_if_sentence_ID2char(filename, li):
     with open(filename,"a") as f:
         f.write("def ID2char(id):\n")
-        f.write("\tid = id - 32\n")
         for i in range(len(li)-1):
             if len(li[i]) == 2:
                 f.write("\tif id == {}:\n".format(li[i][0]))
