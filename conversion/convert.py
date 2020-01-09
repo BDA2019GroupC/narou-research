@@ -1667,4 +1667,4 @@ def ID2char(id):
 		return (14851239).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24491:
 		return (14850195).to_bytes(16, 'big').decode("utf-8")[-1]
-	return -1
+	raise Exception("unexpected id : "+id)

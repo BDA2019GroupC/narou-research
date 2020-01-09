@@ -112,4 +112,4 @@ def print_if_sentence_ID2char(filename, li):
         if len(li[i]) == 3:
             f.write("\tif id >= {}:\n".format(li[i][0]))
             f.write("\t\treturn ({} + id - {}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1], li[i][0]))
-        f.write("\treturn 2\n")
+        f.write('\traise Exception("unexpected id : "+id)\n')
