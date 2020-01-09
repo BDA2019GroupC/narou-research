@@ -79,7 +79,6 @@ def create_char_range_list():
         else:
             char_range_and_num_list.append([num, l[0], l[1]])
             num += (l[1] - l[0] + 1)
-            num
     return char_range_and_num_list
 
 def print_if_sentence_char2ID(filename, li):
@@ -88,28 +87,22 @@ def print_if_sentence_char2ID(filename, li):
         f.write("\tutf8 = int.from_bytes(c.encode(\"utf-8\"), 'big')\n")
         for elm in li:
             if len(elm) == 2:
-                f.write("\tif utf8 == {}:\n".format(elm[1]))
-                f.write("\t\treturn {}\n".format(elm[0]))
+                f.write("\tif utf8 == {}: ".format(elm[1]))
+                f.write(" return {}\n".format(elm[0]))
             if len(elm) == 3:
-                f.write("\tif utf8 >= {} and utf8 <= {}:\n".format(elm[1],elm[2]))
-                f.write("\t\treturn {} + utf8 - {}\n".format(elm[0],elm[1]))
+                f.write("\tif utf8 >= {} and utf8 <= {}: ".format(elm[1],elm[2]))
+                f.write("return {} + utf8 - {}\n".format(elm[0],elm[1]))
         f.write("\treturn 2\n")
 
 def print_if_sentence_ID2char(filename, li):
     with open(filename,"a") as f:
         f.write("def ID2char(id):\n")
-        for i in range(len(li)-1):
+        f.write("\tif id >= {} and id < {}: return id\n".format(li[0][1],li[0][2]))
+        for i in range(1,len(li)): # 制御IDのリストは出力しない
             if len(li[i]) == 2:
-                f.write("\tif id == {}:\n".format(li[i][0]))
-                f.write("\t\treturn ({}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1]))
+                f.write("\tif id == {}: ".format(li[i][0]))
+                f.write("return ({}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1]))
             if len(li[i]) == 3:
-                f.write("\tif id >= {} and id < {}:\n".format(li[i][0], li[i+1][0]))
-                f.write("\t\treturn ({} + id - {}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1], li[i][0]))
-        i = len(li)-1
-        if len(li[i]) == 2:
-            f.write("\tif id == {}:\n".format(li[i][0]))
-            f.write("\t\treturn ({}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1]))
-        if len(li[i]) == 3:
-            f.write("\tif id >= {}:\n".format(li[i][0]))
-            f.write("\t\treturn ({} + id - {}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1], li[i][0]))
+                f.write("\tif id >= {} and id <= {}: ".format(li[i][0], li[i][0]+li[i][2]-li[i][1]))
+                f.write("return ({} + id - {}).to_bytes(16, 'big').decode(\"utf-8\")[-1]\n".format(li[i][1], li[i][0]))
         f.write('\traise Exception("unexpected id : "+id)\n')
