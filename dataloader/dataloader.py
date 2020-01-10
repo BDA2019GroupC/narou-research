@@ -9,12 +9,13 @@ class DataLoader:
         self.exception = exception
         self.seed = seed
         self.strip_one = strip_one
+        self.shuffle = shuffle
 
     def get_generator(self, mode="training"):
         random.seed(self.seed)
         if mode not in ["training", "validation"]: 
             raise Exception("mode must be training or validation.")
-        for path in get_all_path(self.path, self.extention, self.exception, shuffle=shuffle):
+        for path in get_all_path(self.path, self.extention, self.exception, shuffle=self.shuffle):
             with open(path) as f:
                 if self.strip_one: f.readline()
                 for line in f:
