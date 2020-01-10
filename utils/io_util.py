@@ -1,14 +1,17 @@
-def get_all_path(rootpath, extention=[], exception=[], absolute=False):
+import random
+
+def get_all_path(rootpath, extention=[], exception=[], absolute=False, shuffle=False):
     import os
     rootpath = rootpath.rstrip('/')
     files = os.listdir(rootpath)
         
+    if shuffle: random.shuffle(files)
     for file in files:
         if file in exception: continue
         
         joinedpath = os.path.join(rootpath, file)
         if os.path.isdir(joinedpath):
-            for path in get_all_path(joinedpath, extention, exception, absolute):
+            for path in get_all_path(joinedpath, extention, exception, absolute, shuffle):
                 yield path
         else:
             ext = file.split('.')[-1]
