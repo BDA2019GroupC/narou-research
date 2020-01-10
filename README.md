@@ -12,6 +12,11 @@
   + `git remote add origin [~~]`で登録したoriginの場所から、masterブランチをpullする感じ。
   + pullするときに、ローカルでmasterのcommitより先のcommitがあると(ローカルのほうが先を行っていると)、pullできなかったりするから、commitする前にpullするのを気をつけてね(あれ?そうだっけpush前だったような?なんでだっけ。あやふやなので書き換えて星)
   + ↑のときは、`git fetch origin master`とかで一旦取得だけして、`git reset --hard origin/master`を使ってoriginに追従するよ。このとき状態が置き換わるから気をつけて。`--soft`だったらいいのでは?これもあやふや
++ git push origin [~~]
+	+ ここは、pushするのはmasterじゃなくて自分の名前つけたbranchにしてね。
+	+ 例: `git push origin maruyama`
+	+ こうしたときに、remoteに無いbranchだったら、勝手にremoteで作られるよ。
+	+ **もしremoteにあるブランチだったら、色々問題が起こる可能性があるから、必ずgithub上でmergeしたら、自分の名前のbranch削除してね。**
 + git add [~~]
   + ファイルをステージングします。gitでトラックするってことね
 + git commit -m "[~~]"
@@ -39,5 +44,5 @@
   + `git log`でみたcommit id見れるよ(git merge [commit id])
 + git branch -d [~~]
   + branchを消すときに使うよ。
-  + pushしてしまって、一旦の開発が終わったら、ローカルもリモートも自分のbranchをけしてしまってほしい。
-  + 開発することになったら`git branch -b 自分の名`で再び作ってね。
+  + **pushしてしまって、一旦の開発が終わったら、ローカルもリモートも自分のbranchをけしてしまってほしい。**
+  + **開発することになったら`git branch -b 自分の名`で再び作ってね。**
