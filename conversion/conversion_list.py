@@ -88,7 +88,7 @@ def print_if_sentence_char2ID(filename, li):
         for elm in li:
             if len(elm) == 2:
                 f.write("\tif utf8 == {}: ".format(elm[1]))
-                f.write(" return {}\n".format(elm[0]))
+                f.write("return {}\n".format(elm[0]))
             if len(elm) == 3:
                 f.write("\tif utf8 >= {} and utf8 <= {}: ".format(elm[1],elm[2]))
                 f.write("return {} + utf8 - {}\n".format(elm[0],elm[1]))

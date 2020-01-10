@@ -339,7 +339,7 @@ def char2ID(c):
 	if utf8 >= 15711872 and utf8 <= 15711903: return 21478 + utf8 - 15711872
 	if utf8 >= 14844032 and utf8 <= 14844095: return 21510 + utf8 - 14844032
 	if utf8 >= 14844288 and utf8 <= 14844351: return 21574 + utf8 - 14844288
-	if utf8 == 14849152:  return 21638
+	if utf8 == 14849152: return 21638
 	if utf8 >= 14850464 and utf8 <= 14850479: return 21639 + utf8 - 14850464
 	if utf8 >= 14850176 and utf8 <= 14850191: return 21655 + utf8 - 14850176
 	if utf8 >= 49824 and utf8 <= 49855: return 21671 + utf8 - 49824
@@ -390,33 +390,33 @@ def char2ID(c):
 	if utf8 >= 14845056 and utf8 <= 14845119: return 24311 + utf8 - 14845056
 	if utf8 >= 14849696 and utf8 <= 14849727: return 24375 + utf8 - 14849696
 	if utf8 >= 14849920 and utf8 <= 14849983: return 24407 + utf8 - 14849920
-	if utf8 == 14851229:  return 24471
-	if utf8 == 14851228:  return 24472
-	if utf8 == 14851492:  return 24473
-	if utf8 == 15710350:  return 24474
-	if utf8 == 15710351:  return 24475
-	if utf8 == 14849153:  return 24476
-	if utf8 == 15712163:  return 24477
-	if utf8 == 14850963:  return 24478
-	if utf8 == 14849160:  return 24479
-	if utf8 == 14851263:  return 24480
-	if utf8 == 14850432:  return 24481
-	if utf8 == 14851745:  return 24482
-	if utf8 == 14849157:  return 24483
-	if utf8 == 14850434:  return 24484
-	if utf8 == 14850730:  return 24485
-	if utf8 == 14849155:  return 24486
-	if utf8 == 15712165:  return 24487
-	if utf8 == 14849164:  return 24488
-	if utf8 == 14849168:  return 24489
-	if utf8 == 14727569:  return 24490
-	if utf8 == 14849672:  return 24491
-	if utf8 == 14851221:  return 24492
-	if utf8 == 50103:  return 24493
-	if utf8 == 14849154:  return 24494
-	if utf8 == 14849167:  return 24495
-	if utf8 == 14851239:  return 24496
-	if utf8 == 14850195:  return 24497
+	if utf8 == 14851229: return 24471
+	if utf8 == 14851228: return 24472
+	if utf8 == 14851492: return 24473
+	if utf8 == 15710350: return 24474
+	if utf8 == 15710351: return 24475
+	if utf8 == 14849153: return 24476
+	if utf8 == 15712163: return 24477
+	if utf8 == 14850963: return 24478
+	if utf8 == 14849160: return 24479
+	if utf8 == 14851263: return 24480
+	if utf8 == 14850432: return 24481
+	if utf8 == 14851745: return 24482
+	if utf8 == 14849157: return 24483
+	if utf8 == 14850434: return 24484
+	if utf8 == 14850730: return 24485
+	if utf8 == 14849155: return 24486
+	if utf8 == 15712165: return 24487
+	if utf8 == 14849164: return 24488
+	if utf8 == 14849168: return 24489
+	if utf8 == 14727569: return 24490
+	if utf8 == 14849672: return 24491
+	if utf8 == 14851221: return 24492
+	if utf8 == 50103: return 24493
+	if utf8 == 14849154: return 24494
+	if utf8 == 14849167: return 24495
+	if utf8 == 14851239: return 24496
+	if utf8 == 14850195: return 24497
 	return 2
 def ID2char(id):
 	if id >= 0 and id < 5: return id
@@ -835,4 +835,5 @@ def ID2char(id):
 	if id == 24494: return (14849154).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24495: return (14849167).to_bytes(16, 'big').decode("utf-8")[-1]
 	if id == 24496: return (14851239).to_bytes(16, 'big').decode("utf-8")[-1]
+	if id == 24497: return (14850195).to_bytes(16, 'big').decode("utf-8")[-1]
 	raise Exception("unexpected id : "+id)
