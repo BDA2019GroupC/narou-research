@@ -46,21 +46,22 @@ class LengthDataLoader(DataLoader):
 
                     yield path, line.rstrip()
 
-class LengthDataLoaderTwoDomain:
-    def __init__(self, paths, validation_split=0.0, seed=0, extention=[], exception=[], strip_ones=(False,False), shuffle=False):
-        if typeof(paths) != tuple: raise Exception("paths must be tuple")
-        if typeof(strip_ones) != tuple: raise Exception("strip_one must be tuple")
-        self.LDLs = [LengthDataLoader(path[i],validation_split,seed,extention,exception,strip_ones[i],shuffle) for i in range(2)]
+class LengthDataLoaderMultiDomain:
+    def __init__(self, domainVolume, paths, validation_split=0.0, seed=0, extention=[], exception=[], strip_ones=(False,False), shuffle=False):
+        if len(paths) != domainVolume: raise Exception("paths length must be the same value of domainVolume")
+        if len(strip_ones) != domainVolume: raise Exception("strip_ones length must be the same value of domainVolume")
+        self.LDLs = [LengthDataLoader(path[i],validation_split,seed,extention,exception,strip_ones[i],shuffle) for i in range(domainVolume)]
+        self.domainVolume = domainVolume
 
     def get_generator(self, length, mode="training"):
         if mode not in ["training", "validation"]: 
             raise Exception("mode must be \"training\" or \"validation\".")
 
-        generators = [self.LDLs[i].get_generator(length,mode) for i in range(2)]
-        existFlag = [True, True]
+        generators = [self.LDLs[i].get_generator(length,mode) for i in range(self.domainVolume)]
+        existFlag = [True for _ in range(self.domainVolume)]
         while sum(endFlag) > 0:
-            for i in range(2):
-                if random.random() < 0.5:
+            for i in range(self.domainVolume):
+                if random.random() < 1/self.domainVolume:
                     try:
                         yield generators[i].__next__()
                     except StopIteration: existFlag[i] = False
