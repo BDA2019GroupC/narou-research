@@ -1,7 +1,8 @@
+import os
 import random
 
-def get_all_path(rootpath, extention=[], exception=[], absolute=False, shuffle=False):
-    import os
+def get_all_path(rootpath, extention=[], exception=[], absolute=False, shuffle=False, seed=0, init=True):
+    if init: random.seed(seed)
     rootpath = rootpath.rstrip('/')
     files = os.listdir(rootpath)
         
@@ -11,11 +12,11 @@ def get_all_path(rootpath, extention=[], exception=[], absolute=False, shuffle=F
         
         joinedpath = os.path.join(rootpath, file)
         if os.path.isdir(joinedpath):
-            for path in get_all_path(joinedpath, extention, exception, absolute, shuffle):
+            for path in get_all_path(joinedpath, extention, exception, absolute, shuffle, init=False):
                 yield path
         else:
             ext = file.split('.')[-1]
-            if len(extention) is 0 or ext in extention:
+            if ext in extention:
                 yield joinedpath
 
 def detect_encoding(file):
@@ -27,3 +28,22 @@ def detect_encoding(file):
             if det.done : break
             det.close()
     return det.result["encoding"]
+
+def get_path_by_length(rootpath, length, extention=[], exception=[], absolute=False, shuffle=False, seed=0, init=True):
+    if init: random.seed(seed)
+    rootpath = rootpath.rstrip('/')
+    files = os.listdir(rootpath)
+
+    if shuffle: random.shuffle(files)
+    for file in files:
+        if file in exception: continue
+        
+        joinedpath = os.path.join(rootpath, file)
+        if os.path.isdir(joinedpath):
+            for path in get_path_by_length(joinedpath, extention, exception, absolute, shuffle, init=False):
+                if int(path.split("/")[-1].split('.')[0]) == length:
+                    yield path
+        else:
+            ext = file.split('.')[-1]
+            if ext in extention:
+                yield joinedpath
