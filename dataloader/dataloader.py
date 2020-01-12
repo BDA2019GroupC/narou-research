@@ -47,9 +47,15 @@ class LengthDataLoader(DataLoader):
                     yield path, line.rstrip()
 
 class LengthDataLoaderMultiDomain:
-    def __init__(self, domainVolume, paths, validation_split=0.0, seed=0, extention=[], exception=[], strip_ones=(False,False), shuffle=False):
-        if len(paths) != domainVolume: raise Exception("paths length must be the same value of domainVolume")
-        if len(strip_ones) != domainVolume: raise Exception("strip_ones length must be the same value of domainVolume")
+    def __init__(self, domainVolume, paths, validation_split=0.0, seed=0, extention=[], exception=[], strip_ones=None, shuffle=False, labels=None):
+        if len(paths) != domainVolume: 
+            raise Exception("paths length must be the same value of domainVolume")
+        if strip_ones is not None and len(strip_ones) != domainVolume: 
+            raise Exception("strip_ones length must be the same value of domainVolume")
+        if labels is not None and len(labels) != domainVolume:
+            raise Exception("labels length must be the same value of domainVolume")
+
+        self.labels = labels
         self.LDLs = [LengthDataLoader(paths[i],validation_split,seed,extention,exception,strip_ones[i],shuffle) for i in range(domainVolume)]
         self.domainVolume = domainVolume
 
@@ -63,7 +69,10 @@ class LengthDataLoaderMultiDomain:
             for i in range(self.domainVolume):
                 if random.random() < 1/self.domainVolume:
                     try:
-                        yield generators[i].__next__()
+                        ret = generators[i].__next__()
+                        if self.labels is not None:
+                            ret = (self.labels[i]) + ret
+                        yield ret
                     except StopIteration: existFlag[i] = False
 
 def BatchDataLoaderWrapper(generator, max_batch_size, only_sentence=False):
