@@ -33,7 +33,7 @@ class LengthDataLoader(DataLoader):
         random.seed(self.seed)
         if mode not in ["training", "validation"]: 
             raise Exception("mode must be \"training\" or \"validation\".")
-        for path in get_path_by_length(self.path, self.extention, self.exception, shuffle=self.shuffle):
+        for path in get_path_by_length(self.path, length, self.extention, self.exception, shuffle=self.shuffle):
             with open(path) as f:
                 if self.strip_one: f.readline()
                 for line in f:
