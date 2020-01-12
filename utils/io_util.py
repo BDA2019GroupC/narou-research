@@ -16,7 +16,7 @@ def get_all_path(rootpath, extention=[], exception=[], absolute=False, shuffle=F
                 yield path
         else:
             ext = file.split('.')[-1]
-            if ext in extention:
+            if len(extention) == 0 or ext in extention:
                 yield joinedpath
 
 def detect_encoding(file):
@@ -45,5 +45,5 @@ def get_path_by_length(rootpath, length, extention=[], exception=[], absolute=Fa
                     yield path
         else:
             ext = file.split('.')[-1]
-            if ext in extention:
+            if len(extention) == 0 or ext in extention:
                 yield joinedpath
