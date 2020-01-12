@@ -50,7 +50,7 @@ class LengthDataLoaderMultiDomain:
     def __init__(self, domainVolume, paths, validation_split=0.0, seed=0, extention=[], exception=[], strip_ones=(False,False), shuffle=False):
         if len(paths) != domainVolume: raise Exception("paths length must be the same value of domainVolume")
         if len(strip_ones) != domainVolume: raise Exception("strip_ones length must be the same value of domainVolume")
-        self.LDLs = [LengthDataLoader(path[i],validation_split,seed,extention,exception,strip_ones[i],shuffle) for i in range(domainVolume)]
+        self.LDLs = [LengthDataLoader(paths[i],validation_split,seed,extention,exception,strip_ones[i],shuffle) for i in range(domainVolume)]
         self.domainVolume = domainVolume
 
     def get_generator(self, length, mode="training"):
