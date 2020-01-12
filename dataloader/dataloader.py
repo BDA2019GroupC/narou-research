@@ -95,8 +95,6 @@ class RandomLengthBatchDataLoaderMultiDomain:
             strip_ones=None, shuffle=False, labels=None):
 
         if labels is None: labels = range(len(paths))
-        self.min_len = min_len
-        self.max_len = max_len
         self.range_len = max_len - min_len + 1
         self.seed = seed
         LDLMD = LengthDataLoaderMultiDomain(len(paths), paths, validation_split, seed, extention, exception, strip_ones, shuffle, labels)
