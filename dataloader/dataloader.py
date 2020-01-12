@@ -59,7 +59,7 @@ class LengthDataLoaderMultiDomain:
 
         generators = [self.LDLs[i].get_generator(length,mode) for i in range(self.domainVolume)]
         existFlag = [True for _ in range(self.domainVolume)]
-        while sum(endFlag) > 0:
+        while sum(existFlag) > 0:
             for i in range(self.domainVolume):
                 if random.random() < 1/self.domainVolume:
                     try:
