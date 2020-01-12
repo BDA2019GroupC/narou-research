@@ -72,7 +72,7 @@ class LengthDataLoaderMultiDomain:
                     try:
                         ret = generators[i].__next__()
                         if self.labels is not None:
-                            ret = set([self.labels[i]]+list(ret))
+                            ret = set([self.labels[i]]+[e for e in ret])
                         yield ret
                     except StopIteration: existFlag[i] = False
 
