@@ -67,14 +67,13 @@ class LengthDataLoaderMultiDomain:
         generators = [self.LDLs[i].get_generator(length,mode) for i in range(self.domainVolume)]
         existFlag = [True for _ in range(self.domainVolume)]
         while sum(existFlag) > 0:
-            for i in range(self.domainVolume):
-                if random.random() < 1/self.domainVolume:
-                    try:
-                        ret = generators[i].__next__()
-                        if self.labels is not None:
-                            ret = tuple([self.labels[i]]+[e for e in ret])
-                        yield ret
-                    except StopIteration: existFlag[i] = False
+            domain = random.randint(0,self.domainVolume):
+                try:
+                    ret = generators[domain].__next__()
+                    if self.labels is not None:
+                        ret = tuple([self.labels[domain]]+[e for e in ret])
+                    yield ret
+                except StopIteration: existFlag[domain] = False
 
 def BatchDataLoaderWrapper(generator, max_batch_size, only_sentence=False):
     while True:
@@ -89,3 +88,26 @@ def BatchDataLoaderWrapper(generator, max_batch_size, only_sentence=False):
                 break
         if len(ret_list) == 0: break
         yield ret_list
+
+class RandomLengthBatchDataLoaderMultiDomain:
+    def __init__(self, paths, min_len, max_len, max_batch_size,
+            validation_split=0.0, seed=0, extention=[], exception=[], 
+            strip_ones=None, shuffle=False, labels=None):
+
+        if label is None: labels = range(len(paths))
+        self.min_len = min_len
+        self.max_len = max_len
+        self.range_len = max_len - min_len + 1
+        self.seed = seed
+        LDLMD = LengthDataLoaderMultiDomain(len(paths), paths, validation_split, seed, extention, exception, strip_ones, shuffle, labels)
+        self.generators = [BatchDataLoaderWrapper(LDLMD.get_generator(i, mode), max_batch_size) for i in range(min_len, max_len+1)]
+
+    def get_generator(self, mode="training"):
+        random.seed(self.seed)
+        existFlag = [True for _ in self.range_len]
+        while sum(existFlag) > 0:
+          selected_len = random.randint(0, self.range_len)
+          try:
+            yield self.generators[selected_len].__next__()
+          except StopIteration:
+            existFlag[selected_len] = False
