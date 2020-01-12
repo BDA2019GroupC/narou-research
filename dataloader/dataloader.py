@@ -95,17 +95,20 @@ class RandomLengthBatchDataLoaderMultiDomain:
             strip_ones=None, shuffle=False, labels=None):
 
         if labels is None: labels = range(len(paths))
+        self.min_len = min_len
+        self.max_len = max_len
         self.range_len = max_len - min_len + 1
+        self.max_batch_size = max_batch_size
         self.seed = seed
-        LDLMD = LengthDataLoaderMultiDomain(len(paths), paths, validation_split, seed, extention, exception, strip_ones, shuffle, labels)
-        self.generators = [BatchDataLoaderWrapper(LDLMD.get_generator(i, mode), max_batch_size) for i in range(min_len, max_len+1)]
-
+        self.LDLMD = LengthDataLoaderMultiDomain(len(paths), paths, validation_split, seed, extention, exception, strip_ones, shuffle, labels)
+        
     def get_generator(self, mode="training"):
+        generators = [BatchDataLoaderWrapper(self.LDLMD.get_generator(i, mode), self.max_batch_size) for i in range(self.min_len, self.max_len+1)]
         random.seed(self.seed)
-        existFlag = [True for _ in self.range_len]
+        existFlag = [True for _ in range(self.range_len)]
         while sum(existFlag) > 0:
           selected_len = random.randint(0, self.range_len-1)
           try:
-            yield self.generators[selected_len].__next__()
+            yield generators[selected_len].__next__()
           except StopIteration:
             existFlag[selected_len] = False
