@@ -51,6 +51,7 @@ class LengthDataLoaderMultiDomain:
         if len(paths) != domainVolume: 
             raise Exception("paths length must be the same value of domainVolume")
         if strip_ones is None: strip_ones = set(False for _ in range(domainVolume))
+        print(strip_ones)
         if len(strip_ones) != domainVolume: 
             raise Exception("strip_ones length must be the same value of domainVolume")
         if labels is not None and len(labels) != domainVolume:
