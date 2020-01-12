@@ -65,3 +65,14 @@ class LengthDataLoaderMultiDomain:
                     try:
                         yield generators[i].__next__()
                     except StopIteration: existFlag[i] = False
+
+def BatchDataLoaderWrapper(generator, max_batch_size):
+    while True:
+        ret_list = []
+        for i in range(max_batch_size):
+            try:
+                ret_list.append(generator.__next__())
+            except StopIteration:
+                break
+        if len(ret_list) == 0: break
+        yield ret_list
