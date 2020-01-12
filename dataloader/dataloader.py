@@ -67,7 +67,7 @@ class LengthDataLoaderMultiDomain:
         generators = [self.LDLs[i].get_generator(length,mode) for i in range(self.domainVolume)]
         existFlag = [True for _ in range(self.domainVolume)]
         while sum(existFlag) > 0:
-            domain = random.randint(0,self.domainVolume-1):
+            domain = random.randint(0,self.domainVolume-1)
             try:
                 ret = generators[domain].__next__()
                 if self.labels is not None:
