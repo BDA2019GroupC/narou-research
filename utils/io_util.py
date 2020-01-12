@@ -40,7 +40,7 @@ def get_path_by_length(rootpath, length, extention=[], exception=[], absolute=Fa
         
         joinedpath = os.path.join(rootpath, file)
         if os.path.isdir(joinedpath):
-            for path in get_path_by_length(joinedpath, extention, exception, absolute, shuffle, init=False):
+            for path in get_path_by_length(joinedpath, length, extention, exception, absolute, shuffle, init=False):
                 if int(path.split("/")[-1].split('.')[0]) == length:
                     yield path
         else:
