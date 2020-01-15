@@ -48,7 +48,7 @@ def get_path_by_length(rootpath, length, extention=[], exception=[], absolute=Fa
             if len(extention) == 0 or ext in extention:
                 yield joinedpath
 
-def get_limited_shuffle_path(rootpath, limit_rate=0.2 extention=[], exception=[], absolute=False, seed=0, init=True):
+def get_limited_shuffle_path(rootpath, limit_rate=0.2, extention=[], exception=[], absolute=False, seed=0, init=True):
     if init: random.seed(seed)
     rootpath = rootpath.rstrip('/')
     files = os.listdir(rootpath)
