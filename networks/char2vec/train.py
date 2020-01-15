@@ -77,7 +77,7 @@ def train(paths, save_dir, max_epoch, sub_steps, validation_steps,
             if i % sub_steps == 0:
                 pretime = nowtime
                 nowtime = time.time()
-                print('{}s'.format(nowtime - pretime),end=" ")
+                print('{:3f}s'.format(nowtime - pretime),end="; ")
                 print('Step={}; loss={:.7f}'.format(i, losses/sub_steps))
         writelist[0] = "{}".format(epoch)
         writelist[1] = "{}".format(nowtime-pretime)
