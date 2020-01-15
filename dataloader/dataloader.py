@@ -1,4 +1,4 @@
-from narouresearch.utils.io_util import get_all_path, get_path_by_length
+from narouresearch.utils.io_util import get_all_path, get_path_by_length, get_limited_shuffle_path
 import random
 
 class DataLoader:
@@ -27,6 +27,25 @@ class DataLoader:
                         continue
 
                     yield path, line.rstrip()
+
+class LimitedPathDataLoader(DataLoader):
+    def get_generator(self, limit_rate, mode="training"):
+        random.seed(self.seed)
+        if mode not in ["training", "validation"]: 
+            raise Exception("mode must be \"training\" or \"validation\".")
+        for path in get_limited_shuffle_path(self.path, limit_rate, self.extention, self.exception):
+            with open(path) as f:
+                if self.strip_one: f.readline()
+                for line in f:
+                    rand = random.random()
+                    if mode == "training" and rand < self.validation_split:
+                        continue
+
+                    if mode == "validation" and rand >= self.validation_split:
+                        continue
+
+                    yield path, line.rstrip()
+
 
 class LengthDataLoader(DataLoader):
     def get_generator(self, length, mode="training"):
@@ -112,3 +131,4 @@ class RandomLengthBatchDataLoaderMultiDomain:
             yield generators[selected_len].__next__()
           except StopIteration:
             existFlag[selected_len] = False
+
