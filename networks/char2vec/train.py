@@ -82,12 +82,12 @@ def train(paths, save_dir, max_epoch, sub_steps, validation_steps,
                 nowtime = time.time()
                 print('{:3f}s'.format(nowtime - pretime),end="; ")
                 print('Step={}; loss={:.7f}'.format(i, sub_losses/sub_steps))
-                sub_losses=0.
                 writelist[0] = "{}".format(epoch)
                 writelist[1] = "{}".format(i)
                 writelist[2] = "{}".format(nowtime - pretime)
-                writelist[3] = "{}".format(sub_losses/sub_steps)
+                writelist[3] = "{:.7f}".format(sub_losses/sub_steps)
                 write_list_to_file(save_dir,"sub_log.csv",writelist)
+                sub_losses=0.
         writelist[0] = "{}".format(epoch)
         writelist[1] = "{}".format(nowtime-pretime)
         writelist[2] = "{}".format(losses/i)
