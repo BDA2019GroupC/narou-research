@@ -11,7 +11,7 @@ from narouresearch.dataloader.dataloader import RandomLengthDataGenerator
 from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2char
 
 def train(paths, save_dir, max_epoch, sub_steps, validation_steps, 
-    dic_size, bottle_neck_size, embedding_size, device):
+    method, dic_size, bottle_neck_size, embedding_size, device):
 
     BOS, EOS, UNK = 1,2,3
     
@@ -54,7 +54,7 @@ def train(paths, save_dir, max_epoch, sub_steps, validation_steps,
 
     validation_generator = get_generator(DLs, mode="validation")
 
-    model = Char2vec(dic_size, bottle_neck_size, embedding_size)
+    model = Char2vec(method, dic_size, bottle_neck_size, embedding_size)
     model.to(device)
     opt = optim.Adam(model.parameters())
 
@@ -69,7 +69,7 @@ def train(paths, save_dir, max_epoch, sub_steps, validation_steps,
         train_generator = get_generator(DLs, mode="training")
         for i, data in enumerate(train_generator,1):
             center, context, negative = get_ccn(data)
-            loss = model.cbow(center, context, negative)
+            loss = model.forward(center, context, negative)
             loss.backward()
             opt.step()
             opt.zero_grad()

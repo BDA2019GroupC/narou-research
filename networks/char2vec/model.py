@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import os
 
 class Char2vec(nn.Module):
-  def __init__(self, dic_size, bottleneck_size, embed_size):
+  def __init__(self, method, dic_size, bottleneck_size, embed_size):
     super(Char2vec, self).__init__()
     self.center_embedding = nn.Embedding(dic_size, bottleneck_size)
     self.center_linear = nn.Linear(bottleneck_size, embed_size, bias=False)
@@ -14,6 +14,7 @@ class Char2vec(nn.Module):
     self.center_linear.weight.data.uniform_(-0.5 / embed_size, 0.5 / embed_size)
     self.context_embedding.weight.data.uniform_(-0.5 / bottleneck_size, 0.5 / bottleneck_size)
     self.context_linear.weight.data.uniform_(-0.5 / embed_size, 0.5 / embed_size)
+    self.forward = self.cbow if method == "cbow" else self.skipGram
 
   def save_c2v(self,path,post_name):
     torch.save(self.center_embedding.weight.data, os.path.join(path,"c2v_embedding_{}.weight".format(post_name)))
