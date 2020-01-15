@@ -1,4 +1,5 @@
 import time
+import torch.optim as optim
 from narouresearch.networks.char2vec.model import Char2vec
 from narouresearch.dataloader.dataloader import RandomLengthBatchDataLoaderMultiDomain
 from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2char
