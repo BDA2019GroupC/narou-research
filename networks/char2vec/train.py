@@ -44,14 +44,12 @@ def train(paths, save_dir, max_epoch, sub_steps, validation_steps,
         return center, context, negative
 
     writelists = []
-    def write_list_to_file(save_dir, writelist):
-        with open(os.path.join(save_dir,"log.csv"), "a") as f:
+    def write_list_to_file(save_dir, filename, writelist):
+        with open(os.path.join(save_dir,filename), "a") as f:
             f.write(",".join(writelist)+"\n")
 
     DLs = [DataLoader(path,validation_split=0.2,shuffle=True) for path in paths]
     
-    
-
     validation_generator = get_generator(DLs, mode="validation")
 
     model = Char2vec(method, dic_size, bottle_neck_size, embedding_size)
@@ -59,8 +57,12 @@ def train(paths, save_dir, max_epoch, sub_steps, validation_steps,
     opt = optim.Adam(model.parameters())
 
     losses = 0.
+    sub_losses = 0.
     min_val_losses = 100000.
-    writelist = ["" for _ in range(4)]
+    writelist = ["epoch","time_per_epoch","train_loss","validation_loss"]
+    write_list_to_file(save_dir,"log.csv",writelist)
+    writelist = ["epoch","steps_in_epoch","time_per_sub_steps","sub_steps_loss"]
+    write_list_to_file(save_dir,"sub_log.csv",writelist)
     count = 0
     for epoch in range(max_epoch):
         nowtime = time.time()
@@ -74,14 +76,21 @@ def train(paths, save_dir, max_epoch, sub_steps, validation_steps,
             opt.step()
             opt.zero_grad()
             losses+=loss
+            sub_losses+=loss
             if i % sub_steps == 0:
                 pretime = nowtime
                 nowtime = time.time()
                 print('{:3f}s'.format(nowtime - pretime),end="; ")
-                print('Step={}; loss={:.7f}'.format(i, losses/sub_steps))
+                print('Step={}; loss={:.7f}'.format(i, sub_losses/sub_steps))
+                sub_losses=0.
+                writelist[0] = "{}".format(epoch)
+                writelist[1] = "{}".format(i)
+                writelist[2] = "{}".format(nowtime - pretime)
+                writelist[3] = "{}".format(sub_losses/sub_steps)
+                write_list_to_file(save_dir,"sub_log.csv",writelist)
         writelist[0] = "{}".format(epoch)
         writelist[1] = "{}".format(nowtime-pretime)
-        writelist[2] = "{}".format(losses/sub_steps)
+        writelist[2] = "{}".format(losses/i)
 
         losses = 0.
         model.train(False)
@@ -94,7 +103,7 @@ def train(paths, save_dir, max_epoch, sub_steps, validation_steps,
             losses += loss
             if j > validation_steps: break
         writelist[3] = "{}".format(losses/validation_steps)
-        write_list_to_file(save_dir,writelist)
+        write_list_to_file(save_dir,"log.csv",writelist)
         print('Validation losses:{:.7f}'.format(losses/validation_steps))
         count += 1
         if min_val_losses > losses:
