@@ -42,6 +42,11 @@ def train(paths, save_dir, sub_steps, validation_steps,
         negative = negative.to(device)
         return center, context, negative
 
+    writelists = []
+    def write_list_to_file(save_dir, writelist):
+        with open(os.path.join(save_dir,"log.csv"), "a") as f:
+            f.write(",".join(writelist)+"\n")
+
     DLs = [DataLoader(path,validation_split=0.2,shuffle=True) for path in paths]
     train_generator = get_generator(DLs, mode="training")
     validation_generator = get_generator(DLs, mode="validation")
@@ -52,6 +57,7 @@ def train(paths, save_dir, sub_steps, validation_steps,
 
     losses = 0.
     min_val_losses = 100000.
+    writelist = ["" for _ in range(4)]
     nowtime = time.time()
     for i, data in enumerate(train_generator,1):
         center, context, negative = get_ccn(data)
@@ -63,6 +69,9 @@ def train(paths, save_dir, sub_steps, validation_steps,
         if i % sub_steps == 0:
             pretime = nowtime
             nowtime = time.time()
+            writelist[0] = str(i)
+            writelist[1] = str(nowtime-pretime)
+            writelist[2] = str(losses/sub_steps)
             print('{} s'.format(nowtime - pretime))
             print('Step={}; loss={:.7f}'.format(i, losses/sub_steps))
 
@@ -73,10 +82,12 @@ def train(paths, save_dir, sub_steps, validation_steps,
                 loss = model.cbow(center, context, negative)
                 losses += loss
                 if j > validation_steps: break
+            writelist[3] = str(losses/validation_steps)
+            write_list_to_file(save_dir,writelist)
             print('Validation losses:{:.7f}'.format(losses/validation_steps))
             if min_val_losses > losses:
                 min_val_losses = losses
-                model.save_c2v(save_dir, losses)
+                model.save_c2v(save_dir, "{}_{:.4f}".format(i, losses/validation_steps))
             losses = 0.
             model.train(True)
         
