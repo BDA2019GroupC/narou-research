@@ -10,7 +10,7 @@ from narouresearch.dataloader.dataloader import BatchDataGenerator
 from narouresearch.dataloader.dataloader import RandomLengthDataGenerator
 from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2char
 
-def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, 
+def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_stopping,
     method, dic_size, bottle_neck_size, embedding_size, device):
 
     BOS, EOS, UNK = 1,2,3
@@ -65,6 +65,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
     count = 0
     for epoch in range(max_epoch):
         nowtime = time.time()
+        sub_nowtime = time.time()
         losses = 0.
         model.train(True)
         train_generator = get_generator(DLs, mode="training")
@@ -77,17 +78,19 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             losses+=loss
             sub_losses+=loss
             if i % sub_steps == 0:
-                pretime = nowtime
-                nowtime = time.time()
-                print('{:3f}s'.format(nowtime - pretime),end="; ")
+                sub_pretime = sub_nowtime
+                sub_nowtime = time.time()
+                print('{:3f}s'.format(sub_nowtime - sub_pretime),end="; ")
                 print('Step={}; loss={:.7f}'.format(i, sub_losses/sub_steps))
                 writelist[0] = "{}".format(epoch)
                 writelist[1] = "{}".format(i)
-                writelist[2] = "{}".format(nowtime - pretime)
+                writelist[2] = "{}".format(sub_nowtime - sub_pretime)
                 writelist[3] = "{:.7f}".format(sub_losses/sub_steps)
                 write_list_to_file(save_dir,"sub_log.csv",writelist)
                 sub_losses=0.
             if steps is not None and i > steps: break
+        pretime = nowtime
+        nowtime = time.time()
         writelist[0] = "{}".format(epoch)
         writelist[1] = "{}".format(nowtime-pretime)
         writelist[2] = "{}".format(losses/i)
@@ -104,10 +107,11 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             if validation_steps is not None and j > validation_steps: break
         writelist[3] = "{}".format(losses/validation_steps)
         write_list_to_file(save_dir,"log.csv",writelist)
-        print('Validation losses:{:.7f}'.format(losses/validation_steps))
+        print('({: =2}){: =3} epoch, Validation losses:{:.7f}'.format(epoch,count,losses/validation_steps))
         count += 1
         if min_val_losses > losses:
             count = 0
             min_val_losses = losses
             model.save_c2v(save_dir, "{:_=6}_{:.4f}".format(epoch, losses/validation_steps))
-        if count > 20: break
+            print("model is saved")
+        if count >= early_stopping: break
