@@ -2,7 +2,7 @@ from narouresearch.utils.io_util import get_path_valiations
 import random
 
 class DataLoader:
-    def __init__(self, path, path_limit_rate=1., validation_split=0.0, seed=0, extention=[], exception=[], shuffle=False):
+    def __init__(self, path, path_limit_rate=None, validation_split=0.0, seed=0, extention=[], exception=[], shuffle=False):
         self.path = path
         self.path_limit_rate = path_limit_rate
         self.validation_split = validation_split
