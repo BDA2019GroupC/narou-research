@@ -10,7 +10,7 @@ from narouresearch.dataloader.dataloader import BatchDataGenerator
 from narouresearch.dataloader.dataloader import RandomLengthDataGenerator
 from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2char
 
-def train(paths, save_dir, sub_steps, validation_steps, 
+def train(paths, save_dir, max_epoch, sub_steps, validation_steps, 
     dic_size, bottle_neck_size, embedding_size, device):
 
     BOS, EOS, UNK = 1,2,3
@@ -49,7 +49,9 @@ def train(paths, save_dir, sub_steps, validation_steps,
             f.write(",".join(writelist)+"\n")
 
     DLs = [DataLoader(path,validation_split=0.2,shuffle=True) for path in paths]
-    train_generator = get_generator(DLs, mode="training")
+    
+    
+
     validation_generator = get_generator(DLs, mode="validation")
 
     model = Char2vec(dic_size, bottle_neck_size, embedding_size)
@@ -59,36 +61,44 @@ def train(paths, save_dir, sub_steps, validation_steps,
     losses = 0.
     min_val_losses = 100000.
     writelist = ["" for _ in range(4)]
-    nowtime = time.time()
-    for i, data in enumerate(train_generator,1):
-        center, context, negative = get_ccn(data)
-        loss = model.cbow(center, context, negative)
-        loss.backward()
-        opt.step()
-        opt.zero_grad()
-        losses+=loss
-        if i % sub_steps == 0:
-            pretime = nowtime
-            nowtime = time.time()
-            writelist[0] = str(i)
-            writelist[1] = str(nowtime-pretime)
-            writelist[2] = str(losses/sub_steps)
-            print('{} s'.format(nowtime - pretime))
-            print('Step={}; loss={:.7f}'.format(i, losses/sub_steps))
+    count = 0
+    for epoch in range(max_epoch):
+        nowtime = time.time()
+        losses = 0.
+        model.train(True)
+        train_generator = get_generator(DLs, mode="training")
+        for i, data in enumerate(train_generator,1):
+            center, context, negative = get_ccn(data)
+            loss = model.cbow(center, context, negative)
+            loss.backward()
+            opt.step()
+            opt.zero_grad()
+            losses+=loss
+            if i % sub_steps == 0:
+                pretime = nowtime
+                nowtime = time.time()
+                print('{}s'.format(nowtime - pretime),end=" ")
+                print('Step={}; loss={:.7f}'.format(i, losses/sub_steps))
+        writelist[0] = "{}".format(epoch)
+        writelist[1] = "{}".format(nowtime-pretime)
+        writelist[2] = "{}".format(losses/sub_steps)
 
-            losses = 0.
-            model.train(False)
-            for j, val_data in enumerate(validation_generator):
-                center, context, negative = get_ccn(val_data)
-                loss = model.cbow(center, context, negative)
-                losses += loss
-                if j > validation_steps: break
-            writelist[3] = str(losses/validation_steps)
-            write_list_to_file(save_dir,writelist)
-            print('Validation losses:{:.7f}'.format(losses/validation_steps))
-            if min_val_losses > losses:
-                min_val_losses = losses
-                model.save_c2v(save_dir, "{}_{:.4f}".format(i, losses/validation_steps))
-            losses = 0.
-            model.train(True)
-        
+        losses = 0.
+        model.train(False)
+        try: validation_generator.__next__()
+        except StopIteration: 
+            validation_generator = get_generator(DLs, mode="validation")
+        for j, val_data in enumerate(validation_generator):
+            center, context, negative = get_ccn(val_data)
+            loss = model.cbow(center, context, negative)
+            losses += loss
+            if j > validation_steps: break
+        writelist[3] = "{}".format(losses/validation_steps)
+        write_list_to_file(save_dir,writelist)
+        print('Validation losses:{:.7f}'.format(losses/validation_steps))
+        count += 1
+        if min_val_losses > losses:
+            count = 0
+            min_val_losses = losses
+            model.save_c2v(save_dir, "{:_=6}_{:.4f}".format(epoch, losses/validation_steps))
+        if count > 20: break
