@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import os
 
 class Char2vec(nn.Module):
-    def __init__(self, method, dic_size, bottleneck_size, embed_size):
+    def __init__(self, method, dic_size, bottleneck_size, embed_size, normalize=100):
         super(Char2vec, self).__init__()
         self.center_embedding = nn.Embedding(dic_size, bottleneck_size)
         self.center_linear = nn.Linear(bottleneck_size, embed_size, bias=False)
@@ -15,6 +15,7 @@ class Char2vec(nn.Module):
         self.context_embedding.weight.data.uniform_(-0.5 / bottleneck_size, 0.5 / bottleneck_size)
         self.context_linear.weight.data.uniform_(-0.5 / embed_size, 0.5 / embed_size)
         self.forward = self.cbow if method == "cbow" else self.skipGram
+        self.normalize = normalize
 
     def save_c2v(self,path,post_name):
         torch.save(self.center_embedding.weight.data, os.path.join(path,"c2v_embedding_{}.weight".format(post_name)))
@@ -36,6 +37,9 @@ class Char2vec(nn.Module):
         emb = torch.cat((center_emb.unsqueeze(1), -negative_emb), dim=1)
         score = torch.bmm(emb, context_vec.unsqueeze(2)).squeeze(2)
         loss = -torch.mean(F.logsigmoid(score))
+        loss += self.normalize*torch.pow((torch.norm(center_emb, dim=1)-1),2).sum()/center_emb.shape[1]
+        loss += self.normalize*torch.pow((torch.norm(context_emb,dim=1)-1),2).sum()/context_emb.shape[2]/context_emb.shape[1]
+        loss += self.normalize*torch.pow((torch.norm(negative_emb,dim=1)-1),2).sum()/negative_emb.shape[2]/negative_emb.shape[1]
         return loss
 
     def skipGram(self, center, contexts, negatives):
@@ -48,10 +52,9 @@ class Char2vec(nn.Module):
         score = torch.bmm(emb, context_emb.transpose(1, 2))
         # score: (batchsize, negative + 1)
         loss = -torch.mean(F.logsigmoid(score))
-
-        loss += 1000*torch.pow((torch.norm(center_emb, dim=1)-1),2).sum()/center_emb.shape[1]
-        loss += 1000*torch.pow((torch.norm(context_emb,dim=1)-1),2).sum()/context_emb.shape[2]/context_emb.shape[1]
-        loss += 1000*torch.pow((torch.norm(negative_emb,dim=1)-1),2).sum()/negative_emb.shape[2]/negative_emb.shape[1]
+        loss += self.normalize*torch.pow((torch.norm(center_emb, dim=1)-1),2).sum()/center_emb.shape[1]
+        loss += self.normalize*torch.pow((torch.norm(context_emb,dim=1)-1),2).sum()/context_emb.shape[2]/context_emb.shape[1]
+        loss += self.normalize*torch.pow((torch.norm(negative_emb,dim=1)-1),2).sum()/negative_emb.shape[2]/negative_emb.shape[1]
         return loss
 
     def inference(self, charid):

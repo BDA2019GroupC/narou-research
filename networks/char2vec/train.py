@@ -64,7 +64,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
     write_list_to_file(save_dir,"log.csv",writelist)
     writelist = ["epoch","steps_in_epoch","time_per_sub_steps","sub_steps_loss"]
     write_list_to_file(save_dir,"sub_log.csv",writelist)
-    writelist = ["epoch","steps_in_epoch"]+["{} to {}".format(e1,e2) for e1 in range(len(example)) for e2 in range(e1, len(example))]
+    writelist = ["epoch","steps_in_epoch"]+["{} to {}".format(e1,e2) for e1 in range(len(example)) for e2 in range(e1+1, len(example))]
     write_list_to_file(save_dir,"vocab.csv",writelist)
     count = 0
     for epoch in range(max_epoch):
@@ -93,7 +93,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
                 sub_losses=0.
                 writelist=["{}".format(epoch), "{}".format(i)]
                 for e1 in range(len(example)):
-                    for e2 in range(e1, len(example)):
+                    for e2 in range(e1+1, len(example)):
                         writelist.append("{:.7f}".format(model.cosdistance(exampleids[e1],exampleids[e2])))
                         print("{} to {}: {: 7f}".format(example[e1],example[e2],model.cosdistance(exampleids[e1],exampleids[e2])))
                 write_list_to_file(save_dir,"vocab.csv",writelist)
