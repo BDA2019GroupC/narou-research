@@ -14,7 +14,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
     method, dic_size, bottle_neck_size, embedding_size, device, example):
 
     BOS, EOS, UNK = 1,2,3
-    # exampleids = [char2id(c) for c in example]
+    exampleids = [char2id(c) for c in example]
     def get_generator(DLs, mode="training"):
         max_batch_size = 128
         min_len = 11
