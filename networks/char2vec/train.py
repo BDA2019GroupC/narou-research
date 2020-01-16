@@ -63,6 +63,8 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
     write_list_to_file(save_dir,"log.csv",writelist)
     writelist = ["epoch","steps_in_epoch","time_per_sub_steps","sub_steps_loss"]
     write_list_to_file(save_dir,"sub_log.csv",writelist)
+    writelist = ["{} to {}".format(e1,e2) for e1 in range(len(example)) for e2 in range(e1, len(example))]
+    write_list_to_file(save_dir,"vocab.csv",writelist)
     count = 0
     for epoch in range(max_epoch):
         nowtime = time.time()
@@ -83,21 +85,26 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
                 sub_nowtime = time.time()
                 print('{:3f}s'.format(sub_nowtime - sub_pretime),end="; ")
                 print('Step={}; loss={:.7f}'.format(i, sub_losses/sub_steps))
-                writelist[0] = "{}".format(epoch)
-                writelist[1] = "{}".format(i)
-                writelist[2] = "{}".format(sub_nowtime - sub_pretime)
-                writelist[3] = "{:.7f}".format(sub_losses/sub_steps)
+                writelist=[]
+                writelist.append("{}".format(epoch))
+                writelist.append("{}".format(i))
+                writelist.append("{}".format(sub_nowtime - sub_pretime))
+                writelist.append("{:.7f}".format(sub_losses/sub_steps))
                 write_list_to_file(save_dir,"sub_log.csv",writelist)
                 sub_losses=0.
+                writelist=[]
                 for e1 in range(len(example)):
                     for e2 in range(e1, len(example)):
-                        print("{} to {}: {}".format(example[e1],example[e2],model.cosdistance(exampleids[e1],exampleids[e2])))
+                        writelist.append("{:.7f}".format(model.cosdistance(exampleids[e1],exampleids[e2])))
+                        print("{} to {}: {: 7f}".format(example[e1],example[e2],model.cosdistance(exampleids[e1],exampleids[e2])))
+                write_list_to_file(save_dir,"vocab.csv",writelist)
             if steps is not None and i > steps: break
         pretime = nowtime
         nowtime = time.time()
-        writelist[0] = "{}".format(epoch)
-        writelist[1] = "{}".format(nowtime-pretime)
-        writelist[2] = "{}".format(losses/i)
+        writelist = []
+        writelist.append("{}".format(epoch))
+        writelist.append("{}".format(nowtime-pretime))
+        writelist.append("{}".format(losses/i))
 
         losses = 0.
         model.train(False)
@@ -109,7 +116,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
             loss = model.cbow(center, context, negative)
             losses += loss
             if validation_steps is not None and j > validation_steps: break
-        writelist[3] = "{}".format(losses/validation_steps)
+        writelist.append("{}".format(losses/validation_steps))
         write_list_to_file(save_dir,"log.csv",writelist)
         print('({: =2}){: =3} epoch, Validation losses:{:.7f}'.format(epoch,count,losses/validation_steps))
         count += 1

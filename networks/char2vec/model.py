@@ -48,10 +48,16 @@ class Char2vec(nn.Module):
         score = torch.bmm(emb, context_emb.transpose(1, 2))
         # score: (batchsize, negative + 1)
         loss = -torch.mean(F.logsigmoid(score))
+
+        loss += 1000*torch.pow((torch.norm(center_emb, dim=1)-1),2).sum()/center_emb.shape[1]
+        loss += 1000*torch.pow((torch.norm(context_emb,dim=1)-1),2).sum()/context_emb.shape[2]/context_emb.shape[1]
+        loss += 1000*torch.pow((torch.norm(negative_emb,dim=1)-1),2).sum()/negative_emb.shape[2]/negative_emb.shape[1]
         return loss
 
     def inference(self, charid):
         return self.center_embed(charid)
 
     def cosdistance(self, charid1, charid2):
+        charid1 = torch.tensor(charid1)
+        charid2 = torch.tensor(charid2)
         return torch.dot(self.inference(charid1), self.inference(charid2))
