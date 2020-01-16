@@ -11,9 +11,10 @@ from narouresearch.dataloader.dataloader import RandomLengthDataGenerator
 from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2char
 
 def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_stopping,
-    method, dic_size, bottle_neck_size, embedding_size, device):
+    method, dic_size, bottle_neck_size, embedding_size, device, example):
 
     BOS, EOS, UNK = 1,2,3
+    # exampleids = [char2id(c) for c in example]
     def get_generator(DLs, mode="training"):
         max_batch_size = 128
         min_len = 11
@@ -88,6 +89,9 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
                 writelist[3] = "{:.7f}".format(sub_losses/sub_steps)
                 write_list_to_file(save_dir,"sub_log.csv",writelist)
                 sub_losses=0.
+                for e1 in range(len(example)):
+                    for e2 in range(e1, len(example)):
+                        print("{} to {}: {}".format(example[e1],example[e2],model.cosdistance(exampleids[e1],exampleids[e2])))
             if steps is not None and i > steps: break
         pretime = nowtime
         nowtime = time.time()
