@@ -58,4 +58,7 @@ class Char2vec(nn.Module):
         return self.center_embed(charid)
 
     def cosdistance(self, charid1, charid2):
-        return torch.dot(self.inference(charid1), self.inference(charid2))
+        c1,c2 = self.inference(charid1), self.inference(charid2)
+        c1 = c1/torch.norm(c1)
+        c2 = c2/torch.norm(c2)
+        return torch.dot(c1,c2)
