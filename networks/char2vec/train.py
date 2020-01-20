@@ -51,6 +51,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
 
     DLs = [DataLoader(path,validation_split=0.2,shuffle=True) for path in paths]
     
+    train_generator = get_generator(DLs, mode="training")
     validation_generator = get_generator(DLs, mode="validation")
 
     model = Char2vec(method, dic_size, bottle_neck_size, embedding_size)
@@ -71,8 +72,10 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
         nowtime = time.time()
         sub_nowtime = time.time()
         losses = 0.
-        model.train(True)
-        train_generator = get_generator(DLs, mode="training")
+        model.train()
+        try: train_generator.__next__()
+        except StopIteration: 
+            train_generator = get_generator(DLs, mode="training")
         for i, data in enumerate(train_generator,1):
             center, context, negative = get_ccn(data)
             loss = model.forward(center, context, negative)
@@ -106,13 +109,14 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
         writelist.append("{}".format(losses/i))
 
         losses = 0.
-        model.train(False)
+        model.eval()
         try: validation_generator.__next__()
         except StopIteration: 
             validation_generator = get_generator(DLs, mode="validation")
         for j, val_data in enumerate(validation_generator):
             center, context, negative = get_ccn(val_data)
-            loss = model.cbow(center, context, negative)
+            with torch.no_grad():
+                loss = model.cbow(center, context, negative)
             losses += loss
             if validation_steps is not None and j > validation_steps: break
         writelist.append("{}".format(losses/validation_steps))
