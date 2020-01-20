@@ -4,22 +4,38 @@ import torch.nn.functional as F
 import os
 
 class Char2vec(nn.Module):
-    def __init__(self, method, dic_size, bottleneck_size, embed_size, normalize=100):
+    def __init__(self, method, dic_size, bottleneck_size, embed_size, saved_model_dir=None, normalize=100):
         super(Char2vec, self).__init__()
         self.center_embedding = nn.Embedding(dic_size, bottleneck_size)
         self.center_linear = nn.Linear(bottleneck_size, embed_size, bias=False)
         self.context_embedding = nn.Embedding(dic_size, bottleneck_size)
         self.context_linear = nn.Linear(bottleneck_size, embed_size, bias=False)
-        self.center_embedding.weight.data.uniform_(-0.5 / bottleneck_size, 0.5 / bottleneck_size)
-        self.center_linear.weight.data.uniform_(-0.5 / embed_size, 0.5 / embed_size)
-        self.context_embedding.weight.data.uniform_(-0.5 / bottleneck_size, 0.5 / bottleneck_size)
-        self.context_linear.weight.data.uniform_(-0.5 / embed_size, 0.5 / embed_size)
+        weight_path = self.get_model_weight(saved_model_dir)
+        if weight_path is not None:
+            print("loaded weights from " + weight_path)
+            self.load_state_dict(torch.load(weight_path))
+        else:
+            self.center_embedding.weight.data.uniform_(-0.5 / bottleneck_size, 0.5 / bottleneck_size)
+            self.center_linear.weight.data.uniform_(-0.5 / embed_size, 0.5 / embed_size)
+            self.context_embedding.weight.data.uniform_(-0.5 / bottleneck_size, 0.5 / bottleneck_size)
+            self.context_linear.weight.data.uniform_(-0.5 / embed_size, 0.5 / embed_size)
+
         self.forward = self.cbow if method == "cbow" else self.skipGram
         self.normalize = normalize
 
+    def get_model_weight(self, saved_model_dir):
+        if saved_model_dir is None: return None
+        if not os.path.isdir(saved_model_dir): raise Exception("saved_model_dir must be directory path")
+        import glob
+        weight_paths = glob.glob(os.path.join(saved_model_dir,"c2v_[_0-9][_0-9][0-9]_*.*.weight"))
+        if len(weight_paths) == 0: raise Exception("there is no model weight")
+        
+        weight_paths = list(map(lambda x:(x,float(".".join(x.split("_")[-1].split(".")[:-1]))), weight_paths))
+        weight_paths = sorted(weight_paths, key=lambda x:x[1])
+        return weight_paths[0][0]
+
     def save_c2v(self,path,post_name):
-        torch.save(self.center_embedding.weight.data, os.path.join(path,"c2v_embedding_{}.weight".format(post_name)))
-        torch.save(self.center_linear.weight.data, os.path.join(path,"c2v_linear_{}.weight".format(post_name)))
+        torch.save(self.state_dict(), os.path.join(path,"c2v_{}.weight".format(post_name)))
 
     def center_embed(self, center):
         x = self.center_embedding(center)
