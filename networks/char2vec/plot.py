@@ -42,3 +42,4 @@ def plot_from_files(save_dir, logfiles, savefilename):
   h3, l3 = ax3.get_legend_handles_labels()
   ax3.legend(h3, l3, loc='upper right')
   fig.savefig(os.path.join(save_dir,savefilename))
+  plt.close()
