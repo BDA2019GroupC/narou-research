@@ -65,7 +65,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
     write_list_to_file(save_dir,"log.csv",writelist)
     writelist = ["epoch","steps_in_epoch","time_per_sub_steps","sub_steps_loss"]
     write_list_to_file(save_dir,"sub_log.csv",writelist)
-    writelist = ["epoch","steps_in_epoch"]+["{} to {}".format(e1,e2) for e1 in range(len(example)) for e2 in range(e1+1, len(example))]
+    writelist = ["epoch","steps_in_epoch"]+["{}_to_{}".format(e1,e2) for e1 in range(len(example)) for e2 in range(e1+1, len(example))]
     write_list_to_file(save_dir,"vocab.csv",writelist)
     count = 0
     for epoch in range(max_epoch):
