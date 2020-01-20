@@ -12,7 +12,7 @@ from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2c
 from narouresearch.networks.char2vec.plot import plot_from_files
 
 def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_stopping,
-    method, dic_size, bottle_neck_size, embedding_size, device, example):
+    method, dic_size, bottle_neck_size, embedding_size, device, example, saved_model_dir):
 
     BOS, EOS, UNK = 0,1,2
     exampleids = [torch.tensor(char2id(c)).to(device) for c in example]
@@ -54,7 +54,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
     train_generator = get_generator(DLs, mode="training")
     validation_generator = get_generator(DLs, mode="validation")
 
-    model = Char2vec(method, dic_size, bottle_neck_size, embedding_size)
+    model = Char2vec(method, dic_size, bottle_neck_size, embedding_size, saved_model_dir=saved_model_dir)
     model.to(device)
     opt = optim.Adam(model.parameters())
 
@@ -71,6 +71,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
     for epoch in range(max_epoch):
         nowtime = time.time()
         sub_nowtime = time.time()
+        step_nowtime = time.time()
         losses = 0.
         model.train()
         try: train_generator.__next__()
@@ -84,11 +85,13 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
             opt.zero_grad()
             losses+=loss
             sub_losses+=loss
+            step_pretime = step_nowtime
+            step_nowtime = time.time()
+            print('{:3f}s'.format(step_nowtime - step_pretime),end="; ")
+            print('epoch={: =2}; Step={: =4}; loss={:.7f}'.format(epoch, i, loss),end="\r")
             if i % sub_steps == 0:
                 sub_pretime = sub_nowtime
                 sub_nowtime = time.time()
-                print('{:3f}s'.format(sub_nowtime - sub_pretime),end="; ")
-                print('Step={}; loss={:.7f}'.format(i, sub_losses/sub_steps))
                 writelist=["{}".format(epoch), "{}".format(i)]
                 writelist.append("{}".format(sub_nowtime - sub_pretime))
                 writelist.append("{:.7f}".format(sub_losses/sub_steps))
@@ -98,7 +101,6 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
                 for e1 in range(len(example)):
                     for e2 in range(e1+1, len(example)):
                         writelist.append("{:.7f}".format(model.cosdistance(exampleids[e1],exampleids[e2])))
-                        print("{} to {}: {: 7f}".format(example[e1],example[e2],model.cosdistance(exampleids[e1],exampleids[e2])))
                 write_list_to_file(save_dir,"vocab.csv",writelist)
                 plot_from_files(save_dir,["vocab.csv","sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
             if steps is not None and i > steps: break
@@ -122,11 +124,11 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
         writelist.append("{}".format(losses/validation_steps))
         write_list_to_file(save_dir,"log.csv",writelist)
         plot_from_files(save_dir,["vocab.csv","sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
-        print('({: =2}){: =3} epoch, Validation losses:{:.7f}'.format(epoch,count,losses/validation_steps))
+        print('({: =2}){: =3} epoch, Validation losses:{:.7f}'.format(count,epoch,losses/validation_steps))
         count += 1
         if min_val_losses > losses:
             count = 0
             min_val_losses = losses
-            model.save_c2v(save_dir, "{:_=6}_{:.4f}".format(epoch, losses/validation_steps))
+            model.save_c2v(save_dir, "{:_=3}_{:.4f}".format(epoch, losses/validation_steps))
             print("model is saved")
         if count >= early_stopping: break
