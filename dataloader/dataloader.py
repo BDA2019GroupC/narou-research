@@ -66,6 +66,17 @@ class RandomLengthDataGenerator: # faster than function
             try: yield self.generators[selected_len].__next__()
             except StopIteration: existFlag[selected_len] = False
 
+class LengthsDataGenerator: # faster than function
+    def __init__(self, generator, min_len, max_len, random=False):
+        self.min_len = min_len
+        self.max_len = max_len
+        self.generator = generator
+
+    def __call__(self):
+        for length in range(self.min_len, self.max_len+1):
+            for ret in self.generator(length):
+                yield ret
+
 def RandomLengthDataGenerator_(generator, min_len, max_len): # slower than class
     def _generator():
         generators = [generator(length) for length in range(min_len, max_len+1)]
