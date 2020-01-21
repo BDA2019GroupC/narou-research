@@ -88,7 +88,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
             step_pretime = step_nowtime
             step_nowtime = time.time()
             print('{:3f}s'.format(step_nowtime - step_pretime),end="; ")
-            print('epoch={: =2}; Step={: =4}; loss={:.7f}'.format(epoch, i, loss),end="\r")
+            print('epoch={:<2}; Step={:<4}; loss={:.7f}'.format(epoch, i, loss),end="\r")
             if i % sub_steps == 0:
                 sub_pretime = sub_nowtime
                 sub_nowtime = time.time()
