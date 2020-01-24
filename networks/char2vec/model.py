@@ -49,7 +49,7 @@ class Char2vec(nn.Module):
         center_emb = self.center_embed(center)
         context_emb = self.context_embed(contexts)
         context_vec = torch.sum(context_emb, dim=1)
-        negative_emb = self.center_embed(negatives)
+        negative_emb = self.context_embed(negatives)
         emb = torch.cat((center_emb.unsqueeze(1), -negative_emb), dim=1)
         score = torch.bmm(emb, context_vec.unsqueeze(2)).squeeze(2)
         loss = -torch.mean(F.logsigmoid(score))
@@ -61,12 +61,9 @@ class Char2vec(nn.Module):
     def skipGram(self, center, contexts, negatives):
         center_emb = self.center_embed(center)
         context_emb = self.context_embed(contexts)
-        negative_emb = self.center_embed(negatives)
-        # emb: (batchsize, negative + 1, dim)
+        negative_emb = self.context_embed(negatives)
         emb = torch.cat((center_emb.unsqueeze(1), -negative_emb), dim=1)
-        # score: (batchsize, negatives + 1, context_len)
         score = torch.bmm(emb, context_emb.transpose(1, 2))
-        # score: (batchsize, negative + 1)
         loss = -torch.mean(F.logsigmoid(score))
         loss += self.normalize*torch.pow((torch.norm(center_emb, dim=1)-1),2).sum()/center_emb.shape[1]
         loss += self.normalize*torch.pow((torch.norm(context_emb,dim=1)-1),2).sum()/context_emb.shape[2]/context_emb.shape[1]
