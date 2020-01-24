@@ -13,7 +13,6 @@ def detect_encoding(file):
 
 def get_all_path(rootpath, extention=[], exception=[], absolute=False, shuffle=False, seed=0, randobj=None, init=True):
     if init: randobj = random.Random(seed)
-    rootpath = rootpath.rstrip('/')
     files = os.listdir(rootpath)
         
     if shuffle: randobj.shuffle(files)
@@ -31,7 +30,6 @@ def get_all_path(rootpath, extention=[], exception=[], absolute=False, shuffle=F
 
 def get_path_valiations(rootpath, length=None, path_limit_rate=None, extention=[], exception=[], absolute=False, shuffle=False, seed=0, randobj=None, init=True):
     if init: randobj = random.Random(seed)
-    rootpath = rootpath.rstrip('/')
     files = os.listdir(rootpath)
     if length is not None and len(files)!=0 and '.txt' in files[0]:
         if '{}.txt'.format(length) in files: files = ['{}.txt'.format(length)]

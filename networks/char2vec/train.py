@@ -106,7 +106,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
                         writelist.append("{:.7f}".format(model.cosdistance(exampleids[e1],exampleids[e2])))
                 write_list_to_file(save_dir,"vocab.csv",writelist)
                 plot_from_files(save_dir,["vocab.csv","sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
-                model.save_c2v(save_dir, "epoch:{}_steps:{}".format(epoch, j))
+                model.save_c2v(save_dir, "epoch:{}_steps:{}".format(epoch, i))
             if steps is not None and i >= steps: break
         print()
         pretime = nowtime
