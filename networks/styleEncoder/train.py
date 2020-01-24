@@ -40,3 +40,4 @@ def train(paths, save_dir):
 					retlist.append((path[0],get_random_sentence_in_work(path[1], 1)))
 				yield retlist
 
+	
