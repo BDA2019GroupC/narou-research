@@ -17,6 +17,7 @@ if __name__ == "__main__":
     parser.add_argument("--save_dir",required=True)
     parser.add_argument("--saved_model_dir")
     parser.add_argument("--must_cuda",type=bool, default=False)
+    
     args = parser.parse_args()
     aozora_path = args.aozora_path
     narou_path = args.narou_path
