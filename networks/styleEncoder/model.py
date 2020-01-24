@@ -16,7 +16,6 @@ class StyleEncoder(nn.Module):
     def forwardRNN(self, seqs):
         embedding = self.embedding(seqs)
         emblinear = self.embLinear(embedding)
-        # print(emblinear.shape) torch.Size([64, 12, 512])
         output, _ = self.RNN(emblinear)
         return output[:,-1,:]
 
@@ -29,12 +28,12 @@ class StyleDisperser(nn.Module):
 
     def forward(self, batch, same=32):
         ret_z = self.encoder(batch)
-        normloss = self.normalize*torch.pow((torch.norm(ret_z, dim=1)-1),2).sum()/ret_z.shape[0]
+        normloss = self.normalize*torch.pow((torch.norm(ret_z, dim=1)-1),2).mean()
 
         true_z, random_z = ret_z[:same], ret_z[same:]
         true_mean = torch.mean(true_z, dim=0)
         true_std = torch.mv(true_z,true_mean.T).sum()
-        random_true_std = torch.mv(random_z,true_mean.T).sum()
+        random_true_std = (torch.mv(random_z,true_mean.T)/torch.norm(random_z,dim=1)).mean()/torch.norm(true_mean)
         stdloss = true_std - random_true_std + self.margin
         return normloss, stdloss
 

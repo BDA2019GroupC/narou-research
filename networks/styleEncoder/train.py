@@ -86,8 +86,9 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             train_generator = get_generator(mode="training")
         for i, data in enumerate(train_generator,1):
             normloss, stdloss = model.forward(transform(data))
-            if i % 10 == 0: loss = normloss + stdloss
-            loss = stdloss
+            loss = normloss + stdloss
+            # if i % 10 == 0: loss = normloss + stdloss
+            # loss = stdloss
             if torch.isnan(loss).any(): print();print(data);print(center);print(context);print(negative);exit()
             loss.backward()
             opt.step()

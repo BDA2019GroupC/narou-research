@@ -56,8 +56,8 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
     train_generator = get_generator(DLs, mode="training")
     validation_generator = get_generator(DLs, mode="validation")
 
-    model = Char2vec(method, dic_size, bottle_neck_size, embedding_size, normalize=10., saved_model_dir=saved_model_dir)
-    # model.to(device)
+    model = Char2vec(method, dic_size, bottle_neck_size, embedding_size, device, normalize=10., saved_model_dir=saved_model_dir)
+    model.to(device)
     opt = optim.Adam(model.parameters())
 
     losses = 0.
