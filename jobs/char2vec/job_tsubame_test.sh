@@ -10,12 +10,12 @@
 . /etc/profile.d/modules.sh
 module load intel/19.0.0.117 cuda/10.1.105 nccl/2.4.2 cudnn/7.4 python/3.6.5
 python -m narouresearch.jobs.char2vec.train \
- --aozora_path /gs/hs0/tga-bda2019/TeamNarou/Data/aozora_length/train \
- --narou_path /gs/hs0/tga-bda2019/TeamNarou/Data/narou_length/train \
+ --aozora_path teamDrive/Data/aozora_length/train \
+ --narou_path teamDrive/Data/narou_length/train \
  --method skipgram \
- --early_stopping 4 \
+ --early_stopping 10 \
  --max_epoch 500 \
+ --steps 1000 \
  --sub_steps 100 \
  --validation_steps 100 \
- --save_dir /gs/hs0/tga-bda2019/TeamNarou/char2vecLogs_test \
- --saved_model_dir /gs/hs0/tga-bda2019/TeamNarou/char2vecLogs/20200119_163815
+ --save_dir teamDrive/char2vecLogs
