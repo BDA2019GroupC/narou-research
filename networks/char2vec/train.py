@@ -81,7 +81,9 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
             train_generator = get_generator(DLs, mode="training")
         for i, data in enumerate(train_generator,1):
             center, context, negative = get_ccn(data, window_size=random.randint(5,20), negative_size=random.randint(10,40))
-            loss = model.forward(center, context, negative)
+            normloss, cosloss = model.forward(center, context, negative)
+            if i % 10 == 0: loss = normloss + cosloss
+            else: loss = cosloss
             if torch.isnan(loss).any(): print();print(data);print(center);print(context);print(negative);exit()
             loss.backward()
             opt.step()
@@ -91,7 +93,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
             step_pretime = step_nowtime
             step_nowtime = time.time()
             print('{:3f}s'.format(step_nowtime - step_pretime),end="; ")
-            print('epoch={:<2}; Step={:<4}; loss={:.7f}'.format(epoch, i, loss),end="\r")
+            print('epoch={:<2}; Step={:<4}; normloss={:.7f}; cosloss={:.7f}'.format(epoch, i, normloss, cosloss),end="\r")
             if i % sub_steps == 0:
                 sub_pretime = sub_nowtime
                 sub_nowtime = time.time()
@@ -123,10 +125,11 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
         with torch.no_grad():
             for j, val_data in enumerate(validation_generator):
                 center, context, negative = get_ccn(val_data, window_size=5, negative_size=15)
-                loss = model.forward(center, context, negative)
+                normloss, cosloss = model.forward(center, context, negative)
+                loss = normloss + cosloss
                 if torch.isnan(loss).any(): print();print(data);print(center);print(context);print(negative);exit()
                 losses += loss
-                print('validating{} Step={:<4}; loss={:.7f}'.format('.'*(j%10)+' '*(10-j%10), j, loss),end="\r")
+                print('validating{} Step={:<4}; normloss={:.7f}; cosloss={:.7f}'.format('.'*(j%10)+' '*(10-j%10), j, normloss, cosloss),end="\r")
                 if validation_steps is not None and j >= validation_steps: break
         print()
         writelist.append("{}".format(losses/j))

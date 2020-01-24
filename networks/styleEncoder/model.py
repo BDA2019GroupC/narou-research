@@ -21,17 +21,22 @@ class StyleEncoder(nn.Module):
         return output[:,-1,:]
 
 class StyleDisperser(nn.Module):
-    def __init__(self, weights, method, input_size, hidden_size, output_size, normalize=100):
+    def __init__(self, weights, method, input_size, hidden_size, output_size, normalize=100, margin=1):
         super(StyleDisperser, self).__init__()
         self.encoder = StyleEncoder(weights, method, input_size, hidden_size, output_size)
         self.normalize = normalize
+        self.margin = margin
 
     def forward(self, batch, same=32):
         ret_z = self.encoder(batch)
-        loss = self.normalize*torch.pow((torch.norm(ret_z, dim=1)-1),2).sum()/ret_z.shape[0]
+        normloss = self.normalize*torch.pow((torch.norm(ret_z, dim=1)-1),2).sum()/ret_z.shape[0]
 
         true_z, random_z = ret_z[:same], ret_z[same:]
-        true_mean = torch.mean(true_z)
-        true_std = torch.std(true_z)
-        loss += true_std - torch.pow((random_z-true_mean),2).sum()
-        return loss
+        true_mean = torch.mean(true_z, dim=0)
+        true_std = torch.mv(true_z,true_mean.T).sum()
+        random_true_std = torch.mv(random_z,true_mean.T).sum()
+        stdloss = true_std - random_true_std + self.margin
+        return normloss, stdloss
+
+    def inference(self, x):
+        return self.encoder(x)
