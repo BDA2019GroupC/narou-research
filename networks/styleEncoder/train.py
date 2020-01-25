@@ -87,7 +87,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
         for i, data in enumerate(train_generator,1):
             normloss, stdloss = model.forward(transform(data))
             loss = normloss + stdloss
-            if torch.isnan(loss).any(): print();print(data);print(center);print(context);print(negative);exit()
+            if torch.isnan(loss).any(): print();print(data);print(normloss);print(stdloss);exit()
             loss.backward()
             opt.step()
             opt.zero_grad()
@@ -105,7 +105,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
                 writelist.append("{:.7f}".format(sub_losses/sub_steps))
                 write_list_to_file(save_dir,"sub_log.csv",writelist)
                 sub_losses=0.
-                torch.save(model.state_dict(), os.path.join(save_dir,"epoch:{}_steps:{}".format(epoch, i)))
+                torch.save(model.state_dict(), os.path.join(save_dir,"{}epoch_{}steps".format(epoch, i)))
             if steps is not None and i >= steps: break
         print()
         pretime = nowtime
@@ -123,7 +123,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             for j, val_data in enumerate(validation_generator,1):
                 normloss, stdloss = model(transform(val_data))
                 loss = normloss+stdloss
-                if torch.isnan(loss).any(): print();print(data);print(center);print(context);print(negative);exit()
+                if torch.isnan(loss).any(): print();print(val_data);print(normloss);print(stdloss);exit()
                 losses += loss
                 print('validating{} Step={:<4}; normloss={:.7f}; stdloss={:.7f}'.format('.'*(j%10)+' '*(10-j%10), j, normloss, stdloss),end="\r")
                 if validation_steps is not None and j >= validation_steps: break
