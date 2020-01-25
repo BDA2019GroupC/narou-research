@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class StyleEncoder(nn.Module):
+class contentEncoder(nn.Module):
     def __init__(self, weights, method, input_size, hidden_size, output_size):
         super(StyleEncoder, self).__init__()
         self.output_size = output_size

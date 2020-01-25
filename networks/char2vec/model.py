@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import os
 
 class Char2vec(nn.Module):
-    def __init__(self, method, dic_size, bottleneck_size, embed_size, device, saved_model_dir=None, normalize=100):
+    def __init__(self, method, dic_size, bottleneck_size, embed_size, saved_model_dir=None, normalize=100):
         super(Char2vec, self).__init__()
         self.center_embedding = nn.Embedding(dic_size, bottleneck_size)
         self.center_linear = nn.Linear(bottleneck_size, embed_size, bias=False)
@@ -22,7 +22,6 @@ class Char2vec(nn.Module):
 
         self.forward = self.cbow if method == "cbow" else self.skipGram
         self.normalize = normalize
-        self.device = device
 
     def get_model_weight(self, saved_model_dir):
         if saved_model_dir is None: return None
@@ -39,13 +38,11 @@ class Char2vec(nn.Module):
         torch.save(self.state_dict(), os.path.join(path,"c2v_{}.weight".format(post_name)))
 
     def center_embed(self, center):
-        x = center.to(self.device)
-        x = self.center_embedding(x)
+        x = self.center_embedding(center)
         return self.center_linear(x)
 
     def context_embed(self, context):
-        x = context.to(self.device)
-        x = self.context_embedding(x)
+        x = self.context_embedding(context)
         return self.context_linear(x)
 
     def cbow(self, center, contexts, negatives):

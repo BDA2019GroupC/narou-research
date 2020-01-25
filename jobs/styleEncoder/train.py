@@ -13,10 +13,10 @@ if __name__ == "__main__":
     parser.add_argument("--sub_steps", type=int, required=True)
     parser.add_argument("--validation_steps", type=int)
     parser.add_argument("--early_stopping", type=int, required=True)
-    parser.add_argument("--method")
+    parser.add_argument("--method", required=True, choices=['RNN', 'Transformer'])
     parser.add_argument("--save_dir",required=True)
     parser.add_argument("--saved_model_dir")
-    parser.add_argument("--must_cuda",type=bool, default=False)
+    parser.add_argument("--device", choices=['cpu','gpu'])
     
     args = parser.parse_args()
     aozora_path = args.aozora_path
@@ -29,13 +29,16 @@ if __name__ == "__main__":
     early_stopping = args.early_stopping
     method = args.method
     saved_model_dir = args.saved_model_dir
-    must_cuda = args.must_cuda
+    device = args.device
 
-    if not torch.cuda.is_available(): 
-        print("cuda is not available.")
-        if must_cuda: exit()
-        device = torch.device("cpu")
-    else: device = torch.device("cuda")
+    if device == "gpu":
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+        else:
+            print("cuda is not available.")
+            exit()
+    else: device = torch.device("cpu")
+    print(device)
 
     save_dir = os.path.join(save_dir,datetime.now().strftime("%Y%m%d_%H%M%S"))
     os.makedirs(save_dir, exist_ok=True)

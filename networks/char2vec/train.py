@@ -16,7 +16,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
     method, dic_size, bottle_neck_size, embedding_size, device, example, saved_model_dir):
 
     BOS, EOS, UNK = 0,1,2
-    exampleids = [torch.tensor(char2id(c)) for c in example]
+    exampleids = [torch.tensor(char2id(c)).to(device) for c in example]
     def get_generator(DLs, mode="training"):
         max_batch_size = 256
         min_len = 11
@@ -41,9 +41,9 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
         batch = transform(batch)
         center, context = dl_w2v_wrap(batch, window_size)
         negative = torch.randint(dic_size,(batch.shape[0],negative_size))
-        # center = center.to(device)
-        # context = context.to(device)
-        # negative = negative.to(device)
+        center = center.to(device)
+        context = context.to(device)
+        negative = negative.to(device)
         return center, context, negative
 
     writelists = []
@@ -56,7 +56,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
     train_generator = get_generator(DLs, mode="training")
     validation_generator = get_generator(DLs, mode="validation")
 
-    model = Char2vec(method, dic_size, bottle_neck_size, embedding_size, device, normalize=10., saved_model_dir=saved_model_dir)
+    model = Char2vec(method, dic_size, bottle_neck_size, embedding_size, normalize=10., saved_model_dir=saved_model_dir)
     model.to(device)
     opt = optim.Adam(model.parameters())
 
@@ -82,8 +82,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
         for i, data in enumerate(train_generator,1):
             center, context, negative = get_ccn(data, window_size=random.randint(5,20), negative_size=random.randint(10,40))
             normloss, cosloss = model.forward(center, context, negative)
-            if i % 10 == 0: loss = normloss + cosloss
-            else: loss = cosloss
+            loss = normloss + cosloss
             if torch.isnan(loss).any(): print();print(data);print(center);print(context);print(negative);exit()
             loss.backward()
             opt.step()

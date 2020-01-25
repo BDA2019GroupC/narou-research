@@ -4,10 +4,9 @@ import random
 import numpy as np
 import torch
 import torch.optim as optim
-from narouresearch.networks.styleEncoder.model import StyleDisperser
+from narouresearch.networks.main.model import contentEncoder
 from narouresearch.dataloader.dataloader import DataLoader
 from narouresearch.dataloader.dataloader import LengthsDataGenerator
-# from narouresearch.networks.char2vec.plot import plot_from_files
 from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2char
 from narouresearch.dataloader.dataloader import get_random_sentence_in_work
 from narouresearch.utils.io_util import get_workpath
