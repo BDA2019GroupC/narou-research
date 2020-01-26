@@ -1,6 +1,7 @@
 import os
 import time
 import random
+import gc
 import numpy as np
 import torch
 import torch.optim as optim
@@ -85,19 +86,20 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
         except StopIteration:
             train_generator = get_generator(mode="training")
         for i, data in enumerate(train_generator,1):
+        	gc.collect()
             d_tensor = transform(data)
-            normloss, truestd, randomstd = model.forward(d_tensor)
-            loss = normloss + truestd + randomstd
-            if torch.isnan(loss).any(): print();print(d_tensor);print(normloss);print(truestd);print(randomstd);exit()
+            truestd, randomstd = model.forward(d_tensor)
+            loss = truestd + randomstd
+            if torch.isnan(loss).any(): print();print(d_tensor);print(truestd);print(randomstd);exit()
+            opt.zero_grad()
             loss.backward()
             opt.step()
-            opt.zero_grad()
             losses+=loss
             sub_losses+=loss
             step_pretime = step_nowtime
             step_nowtime = time.time()
             print('{:3f}s'.format(step_nowtime - step_pretime),end="; ")
-            print('epoch={:<2}; Step={:<4}; normloss={:.7f}; truestd={:.7f}; randomstd={:.7f}'.format(epoch, i, normloss, truestd, randomstd),end="\r")
+            print('epoch={:<2}; Step={:<4}; truestd={:.7f}; randomstd={:.7f}'.format(epoch, i, truestd, randomstd),end="\r")
             if i % sub_steps == 0:
                 sub_pretime = sub_nowtime
                 sub_nowtime = time.time()

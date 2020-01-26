@@ -26,14 +26,16 @@ class StyleEncoder(nn.Module):
     def forwardRNN(self, seqs):
         embedding = self.embedding(seqs)
         emblinear = self.embLinear(embedding)
-        output, _ = self.RNN(emblinear)
-        return output[:,-1,:]
+        output_, _ = self.RNN(emblinear)
+        output = output_[:,-1,:]
+        return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
     def forwardTransformers(self, seqs):
         embedding = self.embedding(seqs)
         emblinear = self.embLinear(embedding)
-        output = self.Transformer(emblinear)
-        return output.mean(dim=1)
+        output_ = self.Transformer(emblinear)
+        output = output_.mean(dim=1)
+        return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
 
 class StyleDisperser(nn.Module):
@@ -45,13 +47,15 @@ class StyleDisperser(nn.Module):
 
     def forward(self, batch, same=32):
         ret_z = self.encoder(batch)
-        normloss = self.normalize*torch.pow((torch.norm(ret_z, dim=1)-1),2).mean()
-
         true_z, random_z = ret_z[:same], ret_z[same:]
-        true_std = torch.std(true_z, dim=0).sum()/same
         true_mean = torch.mean(true_z, dim=0)
+        true_std = 1. - (torch.mv(true_z,true_mean.T)/torch.norm(true_z,dim=1)/torch.norm(true_mean)).mean()
         random_std = 1. + (torch.mv(random_z,true_mean.T)/torch.norm(random_z,dim=1)/torch.norm(true_mean)).mean()
-        return normloss, true_std, random_std
+        if true_std < 0 or true_std > 2 or random_std < 0 or random_std > 2:
+            print("\nERROR std")
+            print(true_std)
+            print(random_std)
+        return true_std, random_std
 
     def inference(self, x):
         return self.encoder(x)

@@ -1,6 +1,7 @@
 import os
 import time
 import random
+import gc
 import numpy as np
 import torch
 import torch.optim as optim
@@ -80,6 +81,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
         except StopIteration: 
             train_generator = get_generator(DLs, mode="training")
         for i, data in enumerate(train_generator,1):
+            gc.collect()
             center, context, negative = get_ccn(data, window_size=random.randint(5,20), negative_size=random.randint(10,40))
             normloss, cosloss = model.forward(center, context, negative)
             loss = normloss + cosloss
