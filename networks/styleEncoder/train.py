@@ -13,7 +13,7 @@ from narouresearch.dataloader.dataloader import get_random_sentence_in_work
 from narouresearch.utils.io_util import get_workpath
 from narouresearch.networks.styleEncoder.plot import plot_from_files
 
-def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
+def train(paths, save_dir, hidden_size, output_size, max_epoch, steps, sub_steps, validation_steps,
         early_stopping, method, device, saved_model_dir, margin, examples):
 
     BOS, EOS, UNK = 0,1,2
@@ -62,7 +62,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             f.write(",".join(writelist)+"\n")
 
 
-    model = StyleDisperser(weights=None, method=method, input_size=24498, hidden_size=512, output_size=512, device=device, margin=margin)
+    model = StyleDisperser(weights=None, method=method, input_size=24498, hidden_size=hidden_size, output_size=output_size, device=device, margin=margin)
     model.to(device)
     opt = optim.Adam(model.parameters())
 

@@ -5,9 +5,11 @@ from datetime import datetime
 from narouresearch.networks.styleEncoder.train import train
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="this program is char2vec train")
+    parser = argparse.ArgumentParser(description="this program is styleEncoder train")
     parser.add_argument("--aozora_path", help="source path aozora",required=True)
     parser.add_argument("--narou_path", help="source path narou",required=True)
+    parser.add_argument("--hidden_size", default=512, type=int)
+    parser.add_argument("--output_size", default=512, type=int)
     parser.add_argument("--max_epoch", default=500, type=int)
     parser.add_argument("--steps", type=int)
     parser.add_argument("--sub_steps", type=int, required=True)
@@ -56,6 +58,6 @@ if __name__ == "__main__":
             for line in f:
                 examples.append(line.rstrip())
 
-    train(paths=paths, save_dir=save_dir, max_epoch=max_epoch, steps=steps,
+    train(paths=paths, save_dir=save_dir, hidden_size=hidden_size, output_size=output_size, max_epoch=max_epoch, steps=steps,
         sub_steps=sub_steps, validation_steps=validation_steps, early_stopping=early_stopping, 
         method=method, device=device, saved_model_dir=saved_model_dir, margin=margin, examples=examples)
