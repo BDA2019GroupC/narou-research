@@ -85,9 +85,9 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
         except StopIteration: 
             train_generator = get_generator(mode="training")
         for i, data in enumerate(train_generator,1):
-            normloss, stdloss = model.forward(transform(data))
-            loss = normloss + stdloss
-            if torch.isnan(loss).any(): print();print(data);print(normloss);print(stdloss);exit()
+            normloss, truestd, randomstd = model.forward(transform(data))
+            loss = normloss + truestd - randomstd
+            if torch.isnan(loss).any(): print();print(data);print(normloss);print(truestd);print(randomstd);exit()
             loss.backward()
             opt.step()
             opt.zero_grad()
@@ -96,7 +96,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             step_pretime = step_nowtime
             step_nowtime = time.time()
             print('{:3f}s'.format(step_nowtime - step_pretime),end="; ")
-            print('epoch={:<2}; Step={:<4}; normloss={:.7f}; stdloss={:.7f}'.format(epoch, i, normloss, stdloss),end="\r")
+            print('epoch={:<2}; Step={:<4}; normloss={:.7f}; truestd={:.7f}; randomstd={:.7f}'.format(epoch, i, normloss, truestd, randomstd),end="\r")
             if i % sub_steps == 0:
                 sub_pretime = sub_nowtime
                 sub_nowtime = time.time()
@@ -121,11 +121,11 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             validation_generator = get_generator(mode="validation")
         with torch.no_grad():
             for j, val_data in enumerate(validation_generator,1):
-                normloss, stdloss = model(transform(val_data))
-                loss = normloss+stdloss
-                if torch.isnan(loss).any(): print();print(val_data);print(normloss);print(stdloss);exit()
+                normloss, truestd, randomstd = model(transform(val_data))
+                loss = normloss + truestd - randomstd
+                if torch.isnan(loss).any(): print();print(val_data);print(normloss);print(truestd);print(randomstd);exit()
                 losses += loss
-                print('validating{} Step={:<4}; normloss={:.7f}; stdloss={:.7f}'.format('.'*(j%10)+' '*(10-j%10), j, normloss, stdloss),end="\r")
+                print('validating{} Step={:<4}; normloss={:.7f}; truestd={:.7f}; randomstd={:.7f}'.format('.'*(j%10)+' '*(10-j%10), j, normloss, truestd, randomstd),end="\r")
                 if validation_steps is not None and j >= validation_steps: break
         print()
         writelist.append("{}".format(losses/j))
