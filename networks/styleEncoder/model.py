@@ -11,6 +11,9 @@ class StyleEncoder(nn.Module):
         if method == "RNN":
             self.forward = self.forwardRNN
             self.RNN   = nn.RNN(hidden_size, hidden_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
+        if method == "GRU":
+            self.forward = self.forwardGRU
+            self.GRU = nn.GRU(hidden_size, hidden_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
         if method == "Transformer":
             self.forward = self.forwardTransformers
             d_model = 512
@@ -27,6 +30,13 @@ class StyleEncoder(nn.Module):
         embedding = self.embedding(seqs)
         emblinear = self.embLinear(embedding)
         output_, _ = self.RNN(emblinear)
+        output = output_[:,-1,:]
+        return torch.renorm(output, p=2, dim=0, maxnorm=1)
+
+    def forwardGRU(self, seqs):
+        embedding = self.embedding(seqs)
+        emblinear = self.embLinear(embedding)
+        output_, _ = self.GRU(emblinear)
         output = output_[:,-1,:]
         return torch.renorm(output, p=2, dim=0, maxnorm=1)
 

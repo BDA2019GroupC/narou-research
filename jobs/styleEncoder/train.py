@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser.add_argument("--sub_steps", type=int, required=True)
     parser.add_argument("--validation_steps", type=int)
     parser.add_argument("--early_stopping", type=int, required=True)
-    parser.add_argument("--method", required=True, choices=['RNN', 'Transformer'])
+    parser.add_argument("--method", required=True, choices=['RNN', 'GRU', 'Transformer'])
     parser.add_argument("--save_dir",required=True)
     parser.add_argument("--saved_model_dir")
     parser.add_argument("--device", choices=['cpu','gpu'])
