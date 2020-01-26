@@ -15,7 +15,7 @@ from narouresearch.utils.io_util import get_workpath
 from narouresearch.networks.styleEncoder.plot import plot_from_files
 
 def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
-        early_stopping, method, device, saved_model_dir):
+        early_stopping, method, device, saved_model_dir, margin):
 
     BOS, EOS, UNK = 0,1,2
     pathlist = []
@@ -61,7 +61,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             f.write(",".join(writelist)+"\n")
 
 
-    model = StyleDisperser(weights=None, method=method, input_size=24498, hidden_size=512, output_size=512, device=device)
+    model = StyleDisperser(weights=None, method=method, input_size=24498, hidden_size=512, output_size=512, device=device, margin=margin)
     model.to(device)
     opt = optim.Adam(model.parameters())
 
