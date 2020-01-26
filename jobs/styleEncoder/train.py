@@ -51,7 +51,7 @@ if __name__ == "__main__":
     paths = (aozora_path, narou_path)
 
     examples = []
-    if examples_path not None:
+    if examples_path is not None:
         with open(examples_path) as f:
             for line in f:
                 examples.append(line.rstrip())
