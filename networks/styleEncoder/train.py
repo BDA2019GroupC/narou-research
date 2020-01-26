@@ -6,7 +6,6 @@ import numpy as np
 import torch
 import torch.optim as optim
 from narouresearch.networks.styleEncoder.model import StyleDisperser
-from narouresearch.dataloader.dataloader import DataLoader
 from narouresearch.dataloader.dataloader import LengthsDataGenerator
 from narouresearch.networks.styleEncoder.plot import plot_from_files
 from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2char
@@ -32,22 +31,24 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             while True:
                 paths = []
                 count = 0
+                quantity = samerand[1]
                 while True:
-                    while len(paths) < samerand[1]+1:
+                    while len(paths) < quantity+1:
                         wid, dirc = random.choice(plist)
                         path = os.path.join(dirc,str(length)+".txt")
                         if os.path.exists(path): paths.append((wid, path))
-                    for i in range(samerand[1]+1):
-                        try: get_random_sentence_in_work(paths[i][1], samerand[1]); break
+                    for i in range(quantity+1):
+                        try: get_random_sentence_in_work(paths[i][1], quantity); break
                         except ValueError: i += 1
-                    try: tmpl = get_random_sentence_in_work(paths[i][1], samerand[1]); break
+                    try: tmpl = get_random_sentence_in_work(paths[i][1], quantity); break
                     except IndexError: count+=1
-                    if count > 10: return
+                    if count > 10: quantity-=1; count = 0
+                    if quantity < 10: return
                 retlist = list(map(lambda x: (paths[i][0], x), tmpl))
                 for path in paths:
                     if path == paths[i]: continue
                     retlist.append((path[0],get_random_sentence_in_work(path[1], 1)[0]))
-                yield retlist
+                yield quantity, retlist
         min_len = 11
         max_len = 70
         return LengthsDataGenerator(generator, min_len, max_len)()
@@ -85,10 +86,10 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
         try: train_generator.__next__()
         except StopIteration:
             train_generator = get_generator(mode="training")
-        for i, data in enumerate(train_generator,1):
+        for i, (q, data) in enumerate(train_generator,1):
             gc.collect()
             d_tensor = transform(data)
-            truestd, randomstd = model.forward(d_tensor)
+            truestd, randomstd = model.forward(d_tensor, q)
             loss = truestd + randomstd
             if torch.isnan(loss).any(): print();print(d_tensor);print(truestd);print(randomstd);exit()
             opt.zero_grad()
@@ -138,10 +139,10 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
         except StopIteration: 
             validation_generator = get_generator(mode="validation")
         with torch.no_grad():
-            for j, data in enumerate(validation_generator,1):
+            for j, (q, data) in enumerate(validation_generator,1):
                 gc.collect()
                 d_tensor = transform(data)
-                truestd, randomstd = model.forward(d_tensor)
+                truestd, randomstd = model.forward(d_tensor, q)
                 loss = truestd + randomstd
                 if torch.isnan(loss).any(): print();print(d_tensor);print(truestd);print(randomstd);exit()
                 losses[0]+= truestd
@@ -161,5 +162,5 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             torch.save(model.state_dict(), os.path.join(save_dir,"{:_=3}_{:.4f}_{:.4f}".format(epoch, losses[0]/j, losses[1]/j)))
             print("model is saved")
         if count >= early_stopping: 
-        	plot_from_files(save_dir,["sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
-        	break
+            plot_from_files(save_dir,["sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
+            break
