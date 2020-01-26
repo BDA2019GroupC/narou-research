@@ -67,6 +67,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
 
     train_generator = get_generator(mode="training")
     validation_generator = get_generator(mode="validation")
+    tests = ["私たちは人間です。","生活を守ることは必要だと思います。","吾輩は猫である。","でもきもいよね","てかやばくねあれ"]
 
     losses = [0., 0.]
     sub_losses = [0., 0.]
@@ -112,6 +113,17 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
                 sub_losses=[0., 0.]
                 torch.save(model.state_dict(), os.path.join(save_dir,"{}epoch_{}steps".format(epoch, i)))
                 plot_from_files(save_dir,["sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
+                print()
+                dics = {}
+                for ex in tests:
+                	dics[ex] = model.inference(transform([ex]))
+                	print(torch.norm(dics[ex]),end="\t")
+                	print(dics[ex], end="\t")
+                	print(ex)
+                for pp in range(len(dics)):
+                	for qq in range(pp+1, len(dics)):
+                		print(list(dics.keys())[pp] + " to " + list(dics.keys())[qq], end="\t")
+                		print(torch.dot(list(dics.values())[pp][0],list(dics.values())[qq][0]))
             if steps is not None and i >= steps: break
         print()
         pretime = nowtime
