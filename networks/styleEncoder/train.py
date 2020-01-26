@@ -82,11 +82,11 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
         losses = 0.
         model.train()
         try: train_generator.__next__()
-        except StopIteration: 
+        except StopIteration:
             train_generator = get_generator(mode="training")
         for i, data in enumerate(train_generator,1):
             normloss, truestd, randomstd = model.forward(transform(data))
-            loss = normloss + truestd - randomstd
+            loss = normloss + truestd + randomstd
             if torch.isnan(loss).any(): print();print(data);print(normloss);print(truestd);print(randomstd);exit()
             loss.backward()
             opt.step()
@@ -122,7 +122,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
         with torch.no_grad():
             for j, val_data in enumerate(validation_generator,1):
                 normloss, truestd, randomstd = model(transform(val_data))
-                loss = normloss + truestd - randomstd
+                loss = normloss + truestd + randomstd
                 if torch.isnan(loss).any(): print();print(val_data);print(normloss);print(truestd);print(randomstd);exit()
                 losses += loss
                 print('validating{} Step={:<4}; normloss={:.7f}; truestd={:.7f}; randomstd={:.7f}'.format('.'*(j%10)+' '*(10-j%10), j, normloss, truestd, randomstd),end="\r")

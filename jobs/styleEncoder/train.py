@@ -40,6 +40,7 @@ if __name__ == "__main__":
     else: device = torch.device("cpu")
     print(device)
 
+    save_dir = save_dir + method
     save_dir = os.path.join(save_dir,datetime.now().strftime("%Y%m%d_%H%M%S"))
     os.makedirs(save_dir, exist_ok=True)
     
