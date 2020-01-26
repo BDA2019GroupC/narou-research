@@ -110,7 +110,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
                 writelist.append("{:.7f}".format(sum(sub_losses)/sub_steps))
                 write_list_to_file(save_dir,"sub_log.csv",writelist)
                 sub_losses=[0., 0.]
-                torch.save(model.state_dict(), os.path.join(save_dir,"{}epoch_{}steps".format(epoch, i)))
+                # torch.save(model.state_dict(), os.path.join(save_dir,"{}epoch_{}steps".format(epoch, i)))
                 plot_from_files(save_dir,["sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
                 print()
                 with torch.no_grad():
@@ -152,7 +152,6 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
         writelist.append("{}".format(losses[0]/j))
         writelist.append("{}".format(losses[1]/j))
         write_list_to_file(save_dir,"log.csv",writelist)
-        plot_from_files(save_dir,["sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
         print('({: =2}){: =3} epoch, Validation truestd:{:.7f}; randomstd:{:.7f}'.format(count,epoch,losses[0]/j,losses[1]/j))
         count += 1
         if sum(min_val_losses) > sum(losses):
@@ -161,4 +160,6 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             min_val_losses[1] = losses[1]
             torch.save(model.state_dict(), os.path.join(save_dir,"{:_=3}_{:.4f}_{:.4f}".format(epoch, losses[0]/j, losses[1]/j)))
             print("model is saved")
-        if count >= early_stopping: break
+        if count >= early_stopping: 
+        	plot_from_files(save_dir,["sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
+        	break
