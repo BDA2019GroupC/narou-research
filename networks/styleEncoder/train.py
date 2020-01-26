@@ -61,7 +61,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             f.write(",".join(writelist)+"\n")
 
 
-    model = StyleDisperser(weights=None, method=method, input_size=24498, hidden_size=512, output_size=512)
+    model = StyleDisperser(weights=None, method=method, input_size=24498, hidden_size=512, output_size=512, device=device)
     model.to(device)
     opt = optim.Adam(model.parameters())
 
