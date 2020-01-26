@@ -18,6 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("--saved_model_dir")
     parser.add_argument("--device", choices=['cpu','gpu'])
     parser.add_argument("--margin", type=float)
+    tp = lambda x:list(map(int, x.split('.')))
     parser.add_argument("--examples", type=tp)
     
     args = parser.parse_args()
