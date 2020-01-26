@@ -86,7 +86,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
         except StopIteration:
             train_generator = get_generator(mode="training")
         for i, data in enumerate(train_generator,1):
-        	gc.collect()
+            gc.collect()
             d_tensor = transform(data)
             truestd, randomstd = model.forward(d_tensor)
             loss = truestd + randomstd
