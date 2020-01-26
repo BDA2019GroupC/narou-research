@@ -26,6 +26,8 @@ if __name__ == "__main__":
     aozora_path = args.aozora_path
     narou_path = args.narou_path
     save_dir = args.save_dir
+    hidden_size = args.hidden_size
+    output_size = args.output_size
     max_epoch = args.max_epoch
     steps = args.steps
     sub_steps = args.sub_steps
