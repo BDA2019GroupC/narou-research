@@ -114,16 +114,16 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
                 torch.save(model.state_dict(), os.path.join(save_dir,"{}epoch_{}steps".format(epoch, i)))
                 plot_from_files(save_dir,["sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
                 print()
-                dics = {}
-                for ex in tests:
-                	dics[ex] = model.inference(transform([ex]))
-                	print(torch.norm(dics[ex]),end="\t")
-                	print(dics[ex], end="\t")
-                	print(ex)
-                for pp in range(len(dics)):
-                	for qq in range(pp+1, len(dics)):
-                		print(list(dics.keys())[pp] + " to " + list(dics.keys())[qq], end="\t")
-                		print(torch.dot(list(dics.values())[pp][0],list(dics.values())[qq][0]))
+                with torch.no_grad():
+                    dics = {}
+                    for ex in tests:
+                        dics[ex] = model.inference(transform([ex]))
+                        print(random.sample(list(dics[ex].numpy()[0]),3), end="\t")
+                        print(ex)
+                    for pp in range(len(dics)):
+                        for qq in range(pp+1, len(dics)):
+                            print("{:.7f}".format(float(torch.dot(list(dics.values())[pp][0],list(dics.values())[qq][0]))), end="\t")
+                            print(list(dics.keys())[pp] + " to " + list(dics.keys())[qq])
             if steps is not None and i >= steps: break
         print()
         pretime = nowtime
