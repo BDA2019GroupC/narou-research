@@ -75,7 +75,6 @@ class LengthsDataGenerator: # faster than function
 
     def __call__(self):
         for length in range(self.min_len, self.max_len+1):
-            print("\nlength was updated to {}".format(length))
             for ret in self.generator(length):
                 yield ret
 
