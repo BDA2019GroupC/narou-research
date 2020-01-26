@@ -49,6 +49,8 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
                     if path == paths[i]: continue
                     retlist.append((path[0],get_random_sentence_in_work(path[1], 1)[0]))
                 yield quantity, retlist
+        min_len = 11
+        max_len = 70
         return LengthsDataGenerator(generator, min_len, max_len)()
 
     def transform(batchData):
