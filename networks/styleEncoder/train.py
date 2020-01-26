@@ -118,7 +118,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
                     dics = {}
                     for ex in tests:
                         dics[ex] = model.inference(transform([ex]))
-                        print(random.sample(list(dics[ex].numpy()[0]),3), end="\t")
+                        print(random.sample(list(dics[ex].cpu().numpy()[0]),3), end="\t")
                         print(ex)
                     for pp in range(len(dics)):
                         for qq in range(pp+1, len(dics)):
