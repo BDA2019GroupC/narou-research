@@ -18,6 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("--saved_model_dir")
     parser.add_argument("--device", choices=['cpu','gpu'])
     parser.add_argument("--margin", type=float)
+    parser.add_argument("--examples", type=tp)
     
     args = parser.parse_args()
     aozora_path = args.aozora_path
@@ -32,6 +33,7 @@ if __name__ == "__main__":
     saved_model_dir = args.saved_model_dir
     device = args.device
     margin = args.margin
+    examples = args.examples
 
     if device == "gpu":
         if torch.cuda.is_available():
@@ -50,4 +52,4 @@ if __name__ == "__main__":
 
     train(paths=paths, save_dir=save_dir, max_epoch=max_epoch, steps=steps,
         sub_steps=sub_steps, validation_steps=validation_steps, early_stopping=early_stopping, 
-        method=method, device=device, saved_model_dir=saved_model_dir, margin=margin)
+        method=method, device=device, saved_model_dir=saved_model_dir, margin=margin, examples=examples)

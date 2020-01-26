@@ -15,7 +15,7 @@ from narouresearch.utils.io_util import get_workpath
 from narouresearch.networks.styleEncoder.plot import plot_from_files
 
 def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
-        early_stopping, method, device, saved_model_dir, margin):
+        early_stopping, method, device, saved_model_dir, margin, examples):
 
     BOS, EOS, UNK = 0,1,2
     pathlist = []
@@ -67,7 +67,6 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
 
     train_generator = get_generator(mode="training")
     validation_generator = get_generator(mode="validation")
-    tests = ["私たちは人間です。","生活を守ることは必要だと思います。","吾輩は猫である。","でもきもいよね","てかやばくねあれ"]
 
     losses = [0., 0.]
     sub_losses = [0., 0.]
@@ -116,7 +115,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
                 print()
                 with torch.no_grad():
                     dics = {}
-                    for ex in tests:
+                    for ex in examples:
                         dics[ex] = model.inference(transform([ex]))
                         print(random.sample(list(dics[ex].cpu().numpy()[0]),3), end="\t")
                         print(ex)
