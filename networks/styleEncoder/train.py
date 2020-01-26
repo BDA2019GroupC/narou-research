@@ -31,24 +31,26 @@ def train(paths, save_dir, hidden_size, output_size, max_epoch, steps, sub_steps
             while True:
                 paths = []
                 count = 0
-                quantity = samerand[1]
-                while True:
-                    while len(paths) < quantity+1:
-                        wid, dirc = random.choice(plist)
-                        path = os.path.join(dirc,str(length)+".txt")
-                        if os.path.exists(path): paths.append((wid, path))
-                    for i in range(quantity+1):
-                        try: get_random_sentence_in_work(paths[i][1], quantity); break
-                        except ValueError: i += 1
-                    try: tmpl = get_random_sentence_in_work(paths[i][1], quantity); break
-                    except IndexError: count+=1
-                    if count > 10: quantity-=1; count = 0
-                    if quantity < 10: return
-                retlist = list(map(lambda x: (paths[i][0], x), tmpl))
-                for path in paths:
-                    if path == paths[i]: continue
+                max_quantity = 0
+                p_list = random.sample(plist, len(plist))
+                for wid, dirc in p_list:
+                    path = os.path.join(dirc,str(length)+".txt")
+                    if not os.path.exists(path): continue
+                    paths.append((wid, path))
+                    if max_quantity == samerand[1] and len(paths) < samerand[1]: continue
+                    ret = get_random_sentence_in_work(paths[-1][1],samerand[1])
+                    if type(ret) is not int: ret = samerand[1]
+                    if ret > max_quantity:
+                        max_quantity = ret
+                        paths[0], paths[-1] = paths[-1], paths[0]
+                    if len(paths) > samerand[1] and max_quantity == samerand[1]: break
+                else: 
+                    if max_quantity < 10: return
+                tmpl = get_random_sentence_in_work(paths[0][1], max_quantity);
+                retlist = list(map(lambda x: (paths[0][0], x), tmpl))
+                for path in paths[1:]:
                     retlist.append((path[0],get_random_sentence_in_work(path[1], 1)[0]))
-                yield quantity, retlist
+                yield max_quantity, retlist
         min_len = 11
         max_len = 70
         return LengthsDataGenerator(generator, min_len, max_len)()

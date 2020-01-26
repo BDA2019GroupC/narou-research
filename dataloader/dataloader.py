@@ -93,5 +93,7 @@ def RandomLengthDataGenerator_(generator, min_len, max_len): # slower than class
 def get_random_sentence_in_work(path, num):
     with open(path,encoding="utf-8") as f:
         work = f.readlines()
-    ret = random.sample(work, num)
+    try:
+        ret = random.sample(work, num)
+    except ValueError: return len(work)
     return list(map(lambda x:x.rstrip(), ret))
