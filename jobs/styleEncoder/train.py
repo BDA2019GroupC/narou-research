@@ -18,8 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("--saved_model_dir")
     parser.add_argument("--device", choices=['cpu','gpu'])
     parser.add_argument("--margin", type=float)
-    tp = lambda x:list(map(int, x.split('.')))
-    parser.add_argument("--examples", type=tp)
+    parser.add_argument("--examples_path")
     
     args = parser.parse_args()
     aozora_path = args.aozora_path
@@ -34,7 +33,7 @@ if __name__ == "__main__":
     saved_model_dir = args.saved_model_dir
     device = args.device
     margin = args.margin
-    examples = args.examples
+    examples_path = args.examples_path
 
     if device == "gpu":
         if torch.cuda.is_available():
@@ -50,6 +49,12 @@ if __name__ == "__main__":
     os.makedirs(save_dir, exist_ok=True)
     
     paths = (aozora_path, narou_path)
+
+    examples = []
+    if examples_path not None:
+        with open(examples_path) as f:
+            for line in f:
+                examples.append(line.rstrip())
 
     train(paths=paths, save_dir=save_dir, max_epoch=max_epoch, steps=steps,
         sub_steps=sub_steps, validation_steps=validation_steps, early_stopping=early_stopping, 
