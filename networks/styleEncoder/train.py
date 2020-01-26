@@ -8,7 +8,7 @@ import torch.optim as optim
 from narouresearch.networks.styleEncoder.model import StyleDisperser
 from narouresearch.dataloader.dataloader import DataLoader
 from narouresearch.dataloader.dataloader import LengthsDataGenerator
-# from narouresearch.networks.char2vec.plot import plot_from_files
+from narouresearch.networks.styleEncoder.plot import plot_from_files
 from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2char
 from narouresearch.dataloader.dataloader import get_random_sentence_in_work
 from narouresearch.utils.io_util import get_workpath
@@ -68,19 +68,19 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
     train_generator = get_generator(mode="training")
     validation_generator = get_generator(mode="validation")
 
-    losses = 0.
-    sub_losses = 0.
-    min_val_losses = 100000.
-    writelist = ["epoch","time_per_epoch","train_loss","validation_loss"]
+    losses = [0., 0.]
+    sub_losses = [0., 0.]
+    min_val_losses = [100000., 100000.]
+    writelist = ["epoch","time_per_epoch","train_loss_true","train_loss_random","validation_loss_true","validation_loss_random"]
     write_list_to_file(save_dir,"log.csv",writelist)
-    writelist = ["epoch","steps_in_epoch","time_per_sub_steps","sub_steps_loss"]
+    writelist = ["epoch","steps_in_epoch","time_per_sub_steps","sub_steps_loss_true","sub_steps_loss_random","sub_step_loss"]
     write_list_to_file(save_dir,"sub_log.csv",writelist)
     count = 0
     for epoch in range(max_epoch):
         nowtime = time.time()
         sub_nowtime = time.time()
         step_nowtime = time.time()
-        losses = 0.
+        losses = [0., 0.]
         model.train()
         try: train_generator.__next__()
         except StopIteration:
@@ -94,52 +94,60 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             opt.zero_grad()
             loss.backward()
             opt.step()
-            losses+=loss
-            sub_losses+=loss
+            losses[0]+=truestd; losses[1]+=randomstd
+            sub_losses[0]+=truestd; sub_losses[1]+=randomstd
             step_pretime = step_nowtime
             step_nowtime = time.time()
             print('{:3f}s'.format(step_nowtime - step_pretime),end="; ")
-            print('epoch={:<2}; Step={:<4}; truestd={:.7f}; randomstd={:.7f}'.format(epoch, i, truestd, randomstd),end="\r")
+            print('epoch={:<2}; Step={:<4}; truestd={:.7f}; randomstd={:.7f}; loss={:.7f}'.format(epoch, i, truestd, randomstd, loss),end="\r")
             if i % sub_steps == 0:
                 sub_pretime = sub_nowtime
                 sub_nowtime = time.time()
                 writelist=["{}".format(epoch), "{}".format(i)]
                 writelist.append("{}".format(sub_nowtime - sub_pretime))
-                writelist.append("{:.7f}".format(sub_losses/sub_steps))
+                writelist.append("{:.7f}".format(sub_losses[0]/sub_steps))
+                writelist.append("{:.7f}".format(sub_losses[1]/sub_steps))
+                writelist.append("{:.7f}".format(sum(sub_losses)/sub_steps))
                 write_list_to_file(save_dir,"sub_log.csv",writelist)
-                sub_losses=0.
+                sub_losses=[0., 0.]
                 torch.save(model.state_dict(), os.path.join(save_dir,"{}epoch_{}steps".format(epoch, i)))
+                plot_from_files(save_dir,["sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
             if steps is not None and i >= steps: break
         print()
         pretime = nowtime
         nowtime = time.time()
         writelist = ["{}".format(epoch)]
         writelist.append("{}".format(nowtime-pretime))
-        writelist.append("{}".format(losses/i))
+        writelist.append("{}".format(losses[0]/i))
+        writelist.append("{}".format(losses[1]/i))
 
-        losses = 0.
+        losses = [0.,0.]
         model.eval()
         try: validation_generator.__next__()
         except StopIteration: 
             validation_generator = get_generator(mode="validation")
         with torch.no_grad():
             for j, data in enumerate(validation_generator,1):
+                gc.collect()
                 d_tensor = transform(data)
-                normloss, truestd, randomstd = model(d_tensor, d_tensor.shape[0])
-                loss = normloss + truestd + 100*(1.+randomstd)
-                if torch.isnan(loss).any(): print();print(val_data);print(normloss);print(truestd);print(randomstd);exit()
-                losses += loss
-                print('validating{} Step={:<4}; normloss={:.7f}; truestd={:.7f}; randomstd={:.7f}'.format('.'*(j%10)+' '*(10-j%10), j, normloss, truestd, randomstd),end="\r")
+                truestd, randomstd = model.forward(d_tensor)
+                loss = truestd + randomstd
+                if torch.isnan(loss).any(): print();print(d_tensor);print(truestd);print(randomstd);exit()
+                losses[0]+= truestd
+                losses[1]+= randomstd
+                print('validating{} Step={:<4}; truestd={:.7f}; randomstd={:.7f}'.format('.'*(j%10)+' '*(10-j%10), j, truestd, randomstd),end="\r")
                 if validation_steps is not None and j >= validation_steps: break
         print()
-        writelist.append("{}".format(losses/j))
+        writelist.append("{}".format(losses[0]/j))
+        writelist.append("{}".format(losses[1]/j))
         write_list_to_file(save_dir,"log.csv",writelist)
         plot_from_files(save_dir,["sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
-        print('({: =2}){: =3} epoch, Validation losses:{:.7f}'.format(count,epoch,losses/j))
+        print('({: =2}){: =3} epoch, Validation truestd:{:.7f}; randomstd:{:.7f}'.format(count,epoch,losses[0]/j,losses[1]/j))
         count += 1
-        if min_val_losses > losses:
+        if sum(min_val_losses) > sum(losses):
             count = 0
-            min_val_losses = losses
-            torch.save(model.state_dict(), os.path.join(save_dir,"{:_=3}_{:.4f}".format(epoch, losses/j)))
+            min_val_losses[0] = losses[0]
+            min_val_losses[1] = losses[1]
+            torch.save(model.state_dict(), os.path.join(save_dir,"{:_=3}_{:.4f}_{:.4f}".format(epoch, losses[0]/j, losses[1]/j)))
             print("model is saved")
         if count >= early_stopping: break
