@@ -1,5 +1,6 @@
 from narouresearch.utils.io_util import get_path_valiations
 import random
+import sys
 
 class DataLoader:
     def __init__(self, path, path_limit_rate=None, validation_split=0.0, seed=0, extention=[], exception=[], shuffle=False):
@@ -12,13 +13,13 @@ class DataLoader:
         self.shuffle = shuffle
 
     def get_generator(self, mode="training"):
-        random.seed(self.seed)
+        randobj = random.Random(self.seed)
         def _generator(length=None):
             if mode not in ["training", "validation"]: raise Exception("mode must be training or validation.")
             for path in get_path_valiations(self.path, length, self.path_limit_rate, self.extention, self.exception, shuffle=self.shuffle):
-                with open(path) as f:
+                with open(path,encoding="utf-8") as f:
                     for line in f:
-                        rand = random.random()
+                        rand = randobj.random()
                         if mode == "training" and rand < self.validation_split: continue
                         if mode == "validation" and rand >= self.validation_split: continue
                         yield path, line.rstrip()
@@ -88,3 +89,9 @@ def RandomLengthDataGenerator_(generator, min_len, max_len): # slower than class
             try: yield generators[selected_len].__next__()
             except StopIteration: existFlag[selected_len] = False
     return _generator
+
+def get_random_sentence_in_work(path, num):
+    with open(path,encoding="utf-8") as f:
+        work = f.readlines()
+    ret = random.sample(work, num)
+    return list(map(lambda x:x.rstrip(), ret))

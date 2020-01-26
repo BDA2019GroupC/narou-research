@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class StyleEncoder(nn.Module):
+class contentEncoder(nn.Module):
     def __init__(self, weights, method, input_size, hidden_size, output_size):
         super(StyleEncoder, self).__init__()
         self.output_size = output_size
@@ -11,9 +11,6 @@ class StyleEncoder(nn.Module):
         if method == "RNN":
             self.forward = self.forwardRNN
             self.RNN   = nn.RNN(hidden_size, hidden_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
-        if method == "GRU":
-            self.forward = self.forwardGRU
-            self.GRU = nn.GRU(hidden_size, hidden_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
         if method == "Transformer":
             self.forward = self.forwardTransformers
             d_model = 512
@@ -25,54 +22,37 @@ class StyleEncoder(nn.Module):
             encoder_layer = nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward, dropout, activation)
             encoder_norm = nn.LayerNorm(d_model)
             self.Transformer = nn.TransformerEncoder(encoder_layer, num_encoder_layers, encoder_norm)
-            self.catter = nn.Linear()
 
     def forwardRNN(self, seqs):
         embedding = self.embedding(seqs)
         emblinear = self.embLinear(embedding)
-        output_, _ = self.RNN(emblinear)
-        output = output_[:,-1,:]
-        return torch.renorm(output, p=2, dim=0, maxnorm=1)
-
-    def forwardGRU(self, seqs):
-        embedding = self.embedding(seqs)
-        emblinear = self.embLinear(embedding)
-        output_, _ = self.GRU(emblinear)
-        output = output_[:,-1,:]
-        return torch.renorm(output, p=2, dim=0, maxnorm=1)
+        output, _ = self.RNN(emblinear)
+        return output[:,-1,:]
 
     def forwardTransformers(self, seqs):
         embedding = self.embedding(seqs)
         emblinear = self.embLinear(embedding)
-        output_ = self.Transformer(emblinear)
-        output = output_.mean(dim=1)
-        return torch.renorm(output, p=2, dim=0, maxnorm=1)
+        output = self.Transformer(emblinear)
+        return output.mean(dim=1)
 
 
 class StyleDisperser(nn.Module):
-    def __init__(self, weights, method, input_size, hidden_size, output_size, device, margin=0.7):
+    def __init__(self, weights, method, input_size, hidden_size, output_size, normalize=100, margin=1):
         super(StyleDisperser, self).__init__()
         self.encoder = StyleEncoder(weights, method, input_size, hidden_size, output_size)
+        self.normalize = normalize
         self.margin = margin
-        self.device = device
 
     def forward(self, batch, same=32):
         ret_z = self.encoder(batch)
+        normloss = self.normalize*torch.pow((torch.norm(ret_z, dim=1)-1),2).mean()
+
         true_z, random_z = ret_z[:same], ret_z[same:]
-        true_mean_ = torch.mean(true_z, dim=0)
-        true_mean = true_mean_/torch.norm(true_mean_)
-        true_std = 1. -(torch.mv(true_z,true_mean.T)).mean()
-        random_std = -self.margin + torch.max(torch.tensor([self.margin]).to(self.device),torch.mv(random_z,true_mean.T)).mean()
-        if true_std < 0 or true_std > 2 or random_std < 0 or random_std > 2:
-            print("\nERROR std")
-            print(true_std)
-            print(random_std)
-        return true_std, random_std
+        true_mean = torch.mean(true_z, dim=0)
+        true_std = torch.std(true_z, dim=0).sum()
+        random_true_std = (torch.mv(random_z,true_mean.T)/torch.norm(random_z,dim=1)/torch.norm(true_mean)).mean()
+        stdloss = true_std - random_true_std + self.margin
+        return normloss, stdloss
 
     def inference(self, x):
         return self.encoder(x)
-
-    def cosdistance(self, x, y):
-        s1 = self.encoder(x)
-        s2 = self.encoder(y)
-        return torch.dot(s1,s2)
