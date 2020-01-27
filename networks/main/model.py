@@ -2,57 +2,61 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class contentEncoder(nn.Module):
-    def __init__(self, weights, method, input_size, hidden_size, output_size):
+class Embedding(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(StyleEncoder, self).__init__()
+        self.embedding = nn.Embedding(input_size,128)
+        self.embLinear = nn.Linear(128, hidden_size, bias=False)
+
+    def forward(self, seqs):
+        embedding = self.embedding(seqs)
+        emblinear = self.embLinear(embedding)
+        return emblinear
+
+class ContentEncoder(nn.Module):
+    def __init__(self, weights, method, embedding, input_size, hidden_size, output_size):
         super(StyleEncoder, self).__init__()
         self.output_size = output_size
-        self.embedding = weights[0] if weights is not None else nn.Embedding(input_size,128)
-        self.embLinear = weights[1] if weights is not None else nn.Linear(128, hidden_size)
+        self.embedding = embedding
         if method == "RNN":
             self.forward = self.forwardRNN
-            self.RNN   = nn.RNN(hidden_size, hidden_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
-        if method == "Transformer":
-            self.forward = self.forwardTransformers
-            d_model = 512
-            nhead = 8
-            num_encoder_layers = 6
-            dim_feedforward=2048
-            dropout=0.1
-            activation="relu"
-            encoder_layer = nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward, dropout, activation)
-            encoder_norm = nn.LayerNorm(d_model)
-            self.Transformer = nn.TransformerEncoder(encoder_layer, num_encoder_layers, encoder_norm)
+            self.RNN   = nn.RNN(hidden_size, output_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
+        if method == "GRU":
+            self.forward = self.forwardGRU
+            self.GRU = nn.GRU(hidden_size, output_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
 
     def forwardRNN(self, seqs):
         embedding = self.embedding(seqs)
-        emblinear = self.embLinear(embedding)
-        output, _ = self.RNN(emblinear)
-        return output[:,-1,:]
+        output_, _ = self.RNN(embedding)
+        output = torch.sum(output_[:,-1,:].view(output_.shape[0],self.output_size,-1), dim=2)
+        return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
-    def forwardTransformers(self, seqs):
+    def forwardGRU(self, seqs):
         embedding = self.embedding(seqs)
-        emblinear = self.embLinear(embedding)
-        output = self.Transformer(emblinear)
-        return output.mean(dim=1)
+        output_, _ = self.GRU(embedding)
+        output = torch.sum(output_[:,-1,:].view(output_.shape[0],self.output_size,-1), dim=2)
+        return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
+class Decoder(nn.Module):
+    def __init__(self, method, embedding, input_size, hidden_size, output_size):
+        super(StyleEncoder, self).__init__()
+        self.output_size = output_size
+        self.embedding = embedding
+        if method == "RNN":
+            self.forward = self.forwardRNN
+            self.RNN   = nn.RNN(hidden_size, output_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
+        if method == "GRU":
+            self.forward = self.forwardGRU
+            self.GRU = nn.GRU(hidden_size, output_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
 
-class StyleDisperser(nn.Module):
-    def __init__(self, weights, method, input_size, hidden_size, output_size, normalize=100, margin=1):
-        super(StyleDisperser, self).__init__()
-        self.encoder = StyleEncoder(weights, method, input_size, hidden_size, output_size)
-        self.normalize = normalize
-        self.margin = margin
+    def forwardRNN(self, seqs):
+        embedding = self.embedding(seqs)
+        output_, _ = self.RNN(embedding)
+        output = torch.sum(output_[:,-1,:].view(output_.shape[0],self.output_size,-1), dim=2)
+        return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
-    def forward(self, batch, same=32):
-        ret_z = self.encoder(batch)
-        normloss = self.normalize*torch.pow((torch.norm(ret_z, dim=1)-1),2).mean()
-
-        true_z, random_z = ret_z[:same], ret_z[same:]
-        true_mean = torch.mean(true_z, dim=0)
-        true_std = torch.std(true_z, dim=0).sum()
-        random_true_std = (torch.mv(random_z,true_mean.T)/torch.norm(random_z,dim=1)/torch.norm(true_mean)).mean()
-        stdloss = true_std - random_true_std + self.margin
-        return normloss, stdloss
-
-    def inference(self, x):
-        return self.encoder(x)
+    def forwardGRU(self, seqs):
+        embedding = self.embedding(seqs)
+        output_, _ = self.GRU(embedding)
+        output = torch.sum(output_[:,-1,:].view(output_.shape[0],self.output_size,-1), dim=2)
+        return torch.renorm(output, p=2, dim=0, maxnorm=1)
