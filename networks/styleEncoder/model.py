@@ -10,10 +10,10 @@ class StyleEncoder(nn.Module):
         self.embLinear = weights[1] if weights is not None else nn.Linear(128, hidden_size)
         if method == "RNN":
             self.forward = self.forwardRNN
-            self.RNN   = nn.RNN(hidden_size, hidden_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
+            self.RNN   = nn.RNN(hidden_size, output_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
         if method == "GRU":
             self.forward = self.forwardGRU
-            self.GRU = nn.GRU(hidden_size, hidden_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
+            self.GRU = nn.GRU(hidden_size, output_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
         if method == "Transformer":
             self.forward = self.forwardTransformers
             d_model = 512
