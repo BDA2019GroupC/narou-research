@@ -62,12 +62,9 @@ class StyleDisperser(nn.Module):
         true_mean_ = torch.mean(true_z, dim=0)
         true_mean = true_mean_/torch.norm(true_mean_)
         true_std = 1. -(torch.mv(true_z,true_mean.T)).mean()
-        random_std = -self.margin + torch.max(torch.tensor([self.margin]).to(self.device),torch.mv(random_z,true_mean.T)).mean()
-        if true_std < 0 or true_std > 2 or random_std < 0 or random_std > 2:
-            print("\nERROR std")
-            print(true_std)
-            print(random_std)
-        return true_std, random_std
+        random_std_m = -self.margin + torch.max(torch.tensor([self.margin]).to(self.device),torch.mv(random_z,true_mean.T)).mean()
+        random_std_r = 1. +(torch.mv(random_z,true_mean.T)).mean()
+        return true_std, random_std_m, random_std_r
 
     def inference(self, x):
         return self.encoder(x)

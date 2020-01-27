@@ -52,7 +52,7 @@ def train(paths, save_dir, hidden_size, output_size, max_epoch, steps, sub_steps
                     retlist.append((path[0],get_random_sentence_in_work(path[1], 1)[0]))
                 yield max_quantity, retlist
         min_len = 11
-        max_len = 70
+        max_len = 30
         return LengthsDataGenerator(generator, min_len, max_len)()
 
     def transform(batchData):
@@ -91,9 +91,9 @@ def train(paths, save_dir, hidden_size, output_size, max_epoch, steps, sub_steps
         for i, (q, data) in enumerate(train_generator,1):
             gc.collect()
             d_tensor = transform(data)
-            truestd, randomstd = model.forward(d_tensor, q)
+            truestd, randomstd_m, randomstd_r = model.forward(d_tensor, q)
+            randomstd = randomstd_m * 10 + randomstd_r
             loss = truestd + randomstd
-            if torch.isnan(loss).any(): print();print(d_tensor);print(truestd);print(randomstd);exit()
             opt.zero_grad()
             loss.backward()
             opt.step()
