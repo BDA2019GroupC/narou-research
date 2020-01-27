@@ -66,11 +66,8 @@ class EncoderDecoder(nn.Module):
     def __init__(self, method, device, dic_size, hidden_size, output_size):
         super(EncoderDecoder, self).__init__()
         self.embedding = Embedding(dic_size, hidden_size)
-        self.embedding.to(device)
         self.contentEncoder = ContentEncoder(method, self.embedding, hidden_size, output_size)
-        self.contentEncoder.to(device)
         self.decoder = Decoder(method, output_size, dic_size)
-        self.decoder.to(device)
 
     def forward(self, seqs):
         out = self.embedding(seqs)
