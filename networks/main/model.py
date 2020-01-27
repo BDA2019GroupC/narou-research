@@ -14,10 +14,9 @@ class Embedding(nn.Module):
         return emblinear
 
 class ContentEncoder(nn.Module):
-    def __init__(self, method, embedding, hidden_size, output_size):
+    def __init__(self, method, hidden_size, output_size):
         super(ContentEncoder, self).__init__()
         self.output_size = output_size
-        self.embedding = embedding
         if method == "RNN":
             self.forward = self.forwardRNN
             self.RNN   = nn.RNN(hidden_size, output_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
@@ -25,14 +24,12 @@ class ContentEncoder(nn.Module):
             self.forward = self.forwardGRU
             self.GRU = nn.GRU(hidden_size, output_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
 
-    def forwardRNN(self, seqs):
-        embedding = self.embedding(seqs)
+    def forwardRNN(self, embedding):
         output_, _ = self.RNN(embedding)
         output = torch.sum(output_[:,-1,:].view(output_.shape[0],self.output_size,-1), dim=2)
         return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
-    def forwardGRU(self, seqs):
-        embedding = self.embedding(seqs)
+    def forwardGRU(self, embedding):
         output_, _ = self.GRU(embedding)
         output = torch.sum(output_[:,-1,:].view(output_.shape[0],self.output_size,-1), dim=2)
         return torch.renorm(output, p=2, dim=0, maxnorm=1)
@@ -66,7 +63,7 @@ class EncoderDecoder(nn.Module):
     def __init__(self, method, device, dic_size, hidden_size, output_size):
         super(EncoderDecoder, self).__init__()
         self.embedding = Embedding(dic_size, hidden_size)
-        self.contentEncoder = ContentEncoder(method, self.embedding, hidden_size, output_size)
+        self.contentEncoder = ContentEncoder(method, hidden_size, output_size)
         self.decoder = Decoder(method, output_size, dic_size)
 
     def forward(self, seqs):
