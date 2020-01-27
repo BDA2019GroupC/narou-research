@@ -28,7 +28,7 @@ def train(paths, save_dir, hidden_size, output_size, max_epoch, steps, sub_steps
         def generator(length, samerand=(32,32)):
             if mode == "training": plist = train_pathlist
             if mode == "validation": plist = validation_pathlist
-            while True:
+            for _ in range(200):
                 paths = []
                 count = 0
                 max_quantity = 0
