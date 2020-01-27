@@ -1,13 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from narouresearch.networks.char2vec.model import Embedding
 
 class StyleEncoder(nn.Module):
     def __init__(self, weights, method, input_size, hidden_size, output_size):
         super(StyleEncoder, self).__init__()
         self.output_size = output_size
-        self.embedding = weights[0] if weights is not None else nn.Embedding(input_size,128)
-        self.embLinear = weights[1] if weights is not None else nn.Linear(128, hidden_size)
+        self.embedding = Embedding(input_size,128)
+        # self.embedding.load_state_dict(torch.load(PATH))
         if method == "RNN":
             self.forward = self.forwardRNN
             self.RNN   = nn.RNN(hidden_size, output_size, num_layers=2, dropout=0.2, batch_first=True, bidirectional=True)
@@ -29,25 +30,21 @@ class StyleEncoder(nn.Module):
 
     def forwardRNN(self, seqs):
         embedding = self.embedding(seqs)
-        emblinear = self.embLinear(embedding)
-        output_, _ = self.RNN(emblinear)
+        output_, _ = self.RNN(embedding)
         output = torch.sum(output_[:,-1,:].view(output_.shape[0],self.output_size,-1), dim=2)
         return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
     def forwardGRU(self, seqs):
         embedding = self.embedding(seqs)
-        emblinear = self.embLinear(embedding)
-        output_, _ = self.GRU(emblinear)
+        output_, _ = self.GRU(embedding)
         output = torch.sum(output_[:,-1,:].view(output_.shape[0],self.output_size,-1), dim=2)
         return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
     def forwardTransformers(self, seqs):
         embedding = self.embedding(seqs)
-        emblinear = self.embLinear(embedding)
-        output_ = self.Transformer(emblinear)
+        output_ = self.Transformer(embedding)
         output = output_.mean(dim=1)
         return torch.renorm(output, p=2, dim=0, maxnorm=1)
-
 
 class StyleDisperser(nn.Module):
     def __init__(self, weights, method, input_size, hidden_size, output_size, device, margin=0.7):

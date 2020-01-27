@@ -4,7 +4,7 @@ import random
 import numpy as np
 import torch
 import torch.optim as optim
-from narouresearch.networks.main.model import contentEncoder
+from narouresearch.networks.main.model import EncoderDecoder
 from narouresearch.dataloader.dataloader import DataLoader
 from narouresearch.dataloader.dataloader import LengthsDataGenerator
 from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2char
@@ -59,7 +59,7 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
             f.write(",".join(writelist)+"\n")
 
 
-    model = StyleDisperser(weights=None, method=method, input_size=24498, hidden_size=512, output_size=512)
+    model = EncoderDecoder(method, device, dic_size=24498, hidden_size=512, output_size=512)
     model.to(device)
     opt = optim.Adam(model.parameters())
 
