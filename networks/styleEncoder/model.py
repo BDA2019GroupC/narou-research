@@ -31,14 +31,14 @@ class StyleEncoder(nn.Module):
         embedding = self.embedding(seqs)
         emblinear = self.embLinear(embedding)
         output_, _ = self.RNN(emblinear)
-        output = output_[:,-1,:]
+        output = torch.sum(output_[:,-1,:].view(1, 2,-1), dim=1)
         return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
     def forwardGRU(self, seqs):
         embedding = self.embedding(seqs)
         emblinear = self.embLinear(embedding)
         output_, _ = self.GRU(emblinear)
-        output = output_[:,-1,:]
+        output = torch.sum(output_[:,-1,:].view(1, 2,-1), dim=1)
         return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
     def forwardTransformers(self, seqs):
