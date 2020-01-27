@@ -5,7 +5,7 @@ import gc
 import numpy as np
 import torch
 import torch.optim as optim
-from narouresearch.networks.char2vec.model import Char2vec
+from narouresearch.networks.char2vec.model import Char2vec, Embedding
 from narouresearch.dataloader.dataloader import DataLoader
 from narouresearch.dataloader.dataloader import GeneratorRandomMixer
 from narouresearch.dataloader.dataloader import BatchDataGenerator
@@ -57,7 +57,9 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
     train_generator = get_generator(DLs, mode="training")
     validation_generator = get_generator(DLs, mode="validation")
 
-    model = Char2vec(method, dic_size, bottle_neck_size, embedding_size, normalize=10., saved_model_dir=saved_model_dir)
+    embedding = Embedding(dic_size, embedding_size)
+    embedding.to(device)
+    model = Char2vec(method, embedding, dic_size, embedding_size, normalize=10.)
     model.to(device)
     opt = optim.Adam(model.parameters())
 
@@ -109,7 +111,6 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
                         writelist.append("{:.7f}".format(model.cosdistance(exampleids[e1],exampleids[e2])))
                 write_list_to_file(save_dir,"vocab.csv",writelist)
                 plot_from_files(save_dir,["vocab.csv","sub_log.csv","log.csv"],"log_{}_{}.png".format(epoch,i))
-                model.save_c2v(save_dir, "{}epoch_{}steps".format(epoch, i))
             if steps is not None and i >= steps: break
         print()
         pretime = nowtime
@@ -141,6 +142,6 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps, early_
         if min_val_losses > losses:
             count = 0
             min_val_losses = losses
-            model.save_c2v(save_dir, "{:_=3}_{:.4f}".format(epoch, losses/j))
+            torch.save(embedding.state_dict(), os.path.join(save_dir,"epoch:{}_loss:{}".format(epoch, losses/j)))
             print("model is saved")
         if count >= early_stopping: break
