@@ -144,7 +144,8 @@ def train(paths, save_dir, hidden_size, output_size, max_epoch, steps, sub_steps
             for j, (q, data) in enumerate(validation_generator,1):
                 gc.collect()
                 d_tensor = transform(data)
-                truestd, randomstd = model.forward(d_tensor, q)
+                truestd, randomstd_m, randomstd_r = model.forward(d_tensor, q)
+                randomstd = randomstd_m * 10 + randomstd_r
                 loss = truestd + randomstd
                 if torch.isnan(loss).any(): print();print(d_tensor);print(truestd);print(randomstd);exit()
                 losses[0]+= truestd
