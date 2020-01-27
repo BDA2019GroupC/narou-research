@@ -38,7 +38,7 @@ class StyleEncoder(nn.Module):
         embedding = self.embedding(seqs)
         emblinear = self.embLinear(embedding)
         output_, _ = self.GRU(emblinear)
-        output = torch.sum(output_[:,-1,:].view(output_.shape[0],self.output_size,4), dim=1)
+        output = torch.sum(output_[:,-1,:].view(output_.shape[0],self.output_size,-1), dim=1)
         return torch.renorm(output, p=2, dim=0, maxnorm=1)
 
     def forwardTransformers(self, seqs):
