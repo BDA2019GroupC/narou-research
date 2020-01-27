@@ -6,7 +6,7 @@ import torch
 import torch.optim as optim
 from narouresearch.networks.main.model import EncoderDecoder
 from narouresearch.dataloader.dataloader import DataLoader
-from narouresearch.dataloader.dataloader import LengthsDataGenerator
+from narouresearch.dataloader.dataloader import GeneratorRandomMixer, BatchDataGenerator, LengthsDataGenerator
 from narouresearch.conversion.convert import char2ID as char2id, ID2char as id2char
 from narouresearch.dataloader.dataloader import get_random_sentence_in_work
 from narouresearch.utils.io_util import get_workpath
@@ -23,32 +23,16 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
     train_pathlist = random.sample(pathlist, int(len(pathlist)*0.9))
     validation_pathlist = [path for path in pathlist if path not in train_pathlist]
 
-    def get_generator(mode="training"):
-        def generator(length, samerand=(32,32)):
-            if mode == "training": plist = train_pathlist
-            if mode == "validation": plist = validation_pathlist
-            while True:
-                paths = []
-                count = 0
-                while True:
-                    while len(paths) < samerand[1]+1:
-                        wid, dirc = random.choice(plist)
-                        path = os.path.join(dirc,str(length)+".txt")
-                        if os.path.exists(path): paths.append((wid, path))
-                    for i in range(samerand[1]+1):
-                        try: get_random_sentence_in_work(paths[i][1], samerand[1]); break
-                        except ValueError: i += 1
-                    try: tmpl = get_random_sentence_in_work(paths[i][1], samerand[1]); break
-                    except IndexError: count+=1
-                    if count > 10: return
-                retlist = list(map(lambda x: (paths[i][0], x), tmpl))
-                for path in paths:
-                    if path == paths[i]: continue
-                    retlist.append((path[0],get_random_sentence_in_work(path[1], 1)[0]))
-                yield retlist
+    DLs = [DataLoader(path,validation_split=0.1,shuffle=True) for path in paths]
+    def get_generator(DLs, mode="training"):
+        max_batch_size = 256
         min_len = 11
         max_len = 70
-        return LengthsDataGenerator(generator, min_len, max_len)()
+        generators = [DL.get_generator(mode) for DL in DLs]
+        generator = GeneratorRandomMixer(generators)
+        generator = BatchDataGenerator(generator, max_batch_size=max_batch_size)
+        generator = LengthsDataGenerator(generator, min_len=min_len, max_len=max_len)
+        return generator()
 
     def transform(batchData):
         return torch.tensor([[char2id(c) for c in data[-1]]+[EOS] for data in batchData]).to(device)
@@ -63,8 +47,8 @@ def train(paths, save_dir, max_epoch, steps, sub_steps, validation_steps,
     model.to(device)
     opt = optim.Adam(model.parameters())
 
-    train_generator = get_generator(mode="training")
-    validation_generator = get_generator(mode="validation")
+    train_generator = get_generator(DLs, mode="training")
+    validation_generator = get_generator(DLs, mode="validation")
 
     losses = 0.
     sub_losses = 0.
